@@ -32,8 +32,6 @@ void yyerror(const char*s );
 
 %left ADD SUB
 %left MUL DIV
-%right UMINUS
-
 %%
 
 
@@ -47,9 +45,8 @@ expr    :   expr ADD expr               { $$ = (char *)malloc(50*sizeof(char)); 
         |   expr MUL expr               { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$,$3); strcat($$,"* ");  }
         |   expr DIV expr               { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$,$3); strcat($$,"/ ");  }
         |   LBRACKET expr RBRACKET      { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$2);                                  }
-        |   SUB expr %prec UMINUS       { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$,$2);                   } 
-        |   DIGIT                       { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$,"\t");                 }
-        |   ID                          { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$,"\t");                 }
+        |   DIGIT                       { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$," ");                 }
+        |   ID                          { $$ = (char *)malloc(50*sizeof(char)); strcpy($$,$1); strcat($$," ");                 }
         ;
 
 %%
@@ -58,29 +55,22 @@ expr    :   expr ADD expr               { $$ = (char *)malloc(50*sizeof(char)); 
 int yylex()
 { 
     int t;
-    while(1){
+    while(1)
+    {
         t = getchar();
-        if (t == ' ' || t == '\t') {
-            ;
-        }
-        else if (t == '+'){
-            return ADD;
-        }
-        else if (t == '-'){
-            return SUB;
-        }
-        else if (t == '*'){
-            return MUL;
-        }
-        else if (t == '/'){
-            return DIV;
-        }
-        else if (t == 'b'){
-            exit(0);
-        }
-        else if ((t >= '0' &&  t <= '9')){
+        if (t == ' ' || t == '\t');
+        else if (t == '+')return ADD;
+        else if (t == '-')return SUB;
+        else if (t == '*')return MUL;
+        else if (t == '/')return DIV;
+        else if (t == '(')return LBRACKET;
+        else if (t == ')')return RBRACKET;
+        else if (t == 'q')exit(0);//means 'quit'
+        else if ((t >= '0' &&  t <= '9'))
+        {
             int order=0;
-            while((t >= '0' &&  t <= '9')){
+            while((t >= '0' &&  t <= '9'))
+            {
                 number_buff[order]=t;
                 t = getchar();
                 order++;
@@ -90,11 +80,11 @@ int yylex()
             ungetc(t,stdin);
             return DIGIT;
         }
-        else if (( t >= 'a' && t <= 'z' )||( t >= 'A' && t <= 'Z' )
-        ||(t == '_')){
+        else if (( t >= 'a' && t <= 'z' )||( t >= 'A' && t <= 'Z' )||(t == '_'))
+        {
             int order=0;
-            while(( t >= 'a' && t <= 'z' )||( t >= 'A' && t <= 'Z' )
-            ||(t == '_')||(t >= '0' &&  t <= '9')){
+            while(( t >= 'a' && t <= 'z' )||( t >= 'A' && t <= 'Z' )||(t == '_')||(t >= '0' &&  t <= '9'))
+            {
                 id_buff[order]=t;
                 order++;
                 t = getchar();
@@ -104,9 +94,7 @@ int yylex()
             ungetc(t,stdin);
             return DIGIT;
         }
-        else{
-            return t;
-        }
+        else return t;
     }
     // place your token retrieving code here
     return getchar ();

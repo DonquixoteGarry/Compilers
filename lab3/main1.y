@@ -54,9 +54,11 @@ DIGIT   :   '0'                { $$ = 0.0; }
 // programs section
 
 int yylex()
-{ 
-    // place your token retrieving code here
-    return getchar ();
+{
+    int t;
+    t=getchar();
+	if(t == 'q')exit(0);
+    else return t;
 }
 
 int main(void)

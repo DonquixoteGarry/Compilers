@@ -14,7 +14,7 @@ Ji Zheng <zhengji1205@qq.com>
 int yylex(); 
 extern int yyparse();
 FILE* yyin;
-void yyerror(const char*s )
+void yyerror(const char*s );
 %}
 
 %token ADD
@@ -34,7 +34,6 @@ void yyerror(const char*s )
 
 lines   :   lines expr '\n' { printf("%f\n", $2); }
         |   lines '\n'
-        |
         ;
 
 expr    :   expr ADD expr               { $$ = $1 + $3; } 
@@ -52,38 +51,29 @@ expr    :   expr ADD expr               { $$ = $1 + $3; }
 int yylex()
 { 
     int t;
-    while(1){
+    while(1)
+    {
         t = getchar();
-        if (t == ' ' || t == '\t') {
-            ;
-        }
-        else if (t == '+'){
-            return ADD;
-        }
-        else if (t == '-'){
-            return SUB;
-        }
-        else if (t == '*'){
-            return MUL;
-        }
-        else if (t == '/'){
-            return DIV;
-        }
-        else if (t == 'b'){
-            exit(0);
-        }
-        else if (isdigit(t)){
+        if (t == ' ' || t == '\t');
+        else if (t == '+')return ADD;        
+        else if (t == '-')return SUB;
+        else if (t == '*')return MUL;
+        else if (t == '/')return DIV;
+        else if (t == '(')return LBRACKET;
+        else if (t == ')')return RBRACKET;
+        else if (t == 'q')exit(0);
+        else if (isdigit(t))
+        {
             yylval = 0;
-            while(isdigit(t)){
+            while(isdigit(t))
+            {
                 yylval = yylval * 10 + t - '0';
                 t = getchar();
             }
             ungetc(t,stdin);
             return DIGIT;
         }
-        else{
-            return t;
-        }
+        else return t;
     }
     // place your token retrieving code here
     return getchar ();
