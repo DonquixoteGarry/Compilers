@@ -103,7 +103,7 @@ comma       ","
 {arithand}          {show("arithand",yytext);}
 {lineanno}          {}
 {blockanno}         {}
-{backspace}			{}
+{space}				{}
 {blank}             {}
 {comma}             {show("comma",yytext);}               
             
