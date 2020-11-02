@@ -1,0 +1,64 @@
+token          lexeme         value          
+
+int            int            
+id             f              1              
+lpare          (              
+rpare          )              
+lbrace         {              
+int            int            
+id             a              2              
+semi           ;              
+id             a              2              
+assign         =              
+num            0              
+semi           ;              
+while          while          
+lpare          (              
+id             a              2              
+lt             <              
+num            10             
+rpare          )              
+lbrace         {              
+id             a              2              
+mul            *              
+assign         =              
+num            2              
+semi           ;              
+rbrace         }              
+return         return         
+id             a              2              
+semi           ;              
+rbrace         }              
+int            int            
+main           main           
+lpare          (              
+rpare          )              
+lbrace         {              
+int            int            
+id             a              2              
+semi           ;              
+id             a              2              
+assign         =              
+num            0              
+semi           ;              
+if             if             
+lpare          (              
+id             a              2              
+eq             ==             
+num            0              
+rpare          )              
+lbrace         {              
+int            int            
+id             a              2              
+semi           ;              
+id             a              2              
+assign         =              
+id             a              2              
+add            +              
+num            1              
+semi           ;              
+rbrace         }              
+return         return         
+num            0              
+semi           ;              
+rbrace         }              

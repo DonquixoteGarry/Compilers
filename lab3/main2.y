@@ -34,6 +34,7 @@ void yyerror(const char*s );
 
 lines   :   lines expr '\n' { printf("%f\n", $2); }
         |   lines '\n'
+        |
         ;
 
 expr    :   expr ADD expr               { $$ = $1 + $3; } 
@@ -75,8 +76,6 @@ int yylex()
         }
         else return t;
     }
-    // place your token retrieving code here
-    return getchar ();
 }
 
 int main(void)

@@ -65,7 +65,7 @@ int yylex()
         else if (t == '/')return DIV;
         else if (t == '(')return LBRACKET;
         else if (t == ')')return RBRACKET;
-        else if (t == 'q')exit(0);//means 'quit'
+        else if (t == '=')exit(0);//means 'quit'
         else if ((t >= '0' &&  t <= '9'))
         {
             int order=0;
@@ -96,8 +96,6 @@ int yylex()
         }
         else return t;
     }
-    // place your token retrieving code here
-    return getchar ();
 }
 
 int main(void)
