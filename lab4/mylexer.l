@@ -50,8 +50,8 @@ logicand    "&"
 arithor     "||"
 arithand    "&&"   
 lineanno    \/\/[^\n]*
-blockanno   \/\*(.|\n)*\*\/
-backspace	[ ]
+blockanno   \/\*(.|\n|\t|\f|\v|\r)*\*\/
+space		[ ]
 blank       [\t\n\f\v\r]
 comma       ","
 
