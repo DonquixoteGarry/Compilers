@@ -3,11 +3,14 @@ int f()
 { 
     int a; 
     a = 0; 
+    int b = a;
     while(a < 10) 
     { 
         a*=2;
-    } 
-    return a; 
+        b=a+1;
+    }
+    int c=a+b; 
+    return c; 
 }
 int main()
 { 
@@ -16,7 +19,7 @@ int main()
     if(a==0) 
     { 
         int a; 
-        a=a+1;
+        a=a++;
     }
     // Comment line 
     return 0;

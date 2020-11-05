@@ -54,12 +54,23 @@ struct idlist
         }
         else
         {
-            idnode* temp=new idnode;
-            temp->setval(val);
-            temp->setorder(len+1);
-            head->next=temp;
-            temp->last=head;
-            len++;
+            idnode* curr=head;
+            while(1)
+            {
+                if(curr->next==NULL)
+                {   
+                    idnode* temp=new idnode;
+                    temp->setval(val);
+                    temp->setorder(len+1);
+                    curr->next=temp;
+                    temp->last=curr;
+                    len++;
+                    return;
+                }
+                else curr=curr->next;
+            }
+            
+            
         }
     }
     

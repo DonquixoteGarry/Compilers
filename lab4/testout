@@ -12,6 +12,11 @@ id             a              2
 assign         =              
 num            0              
 semi           ;              
+int            int            
+id             b              3              
+assign         =              
+id             a              2              
+semi           ;              
 while          while          
 lpare          (              
 id             a              2              
@@ -24,9 +29,22 @@ mul            *
 assign         =              
 num            2              
 semi           ;              
-rbrace         }              
-return         return         
+id             b              3              
+assign         =              
 id             a              2              
+add            +              
+num            1              
+semi           ;              
+rbrace         }              
+int            int            
+id             c              4              
+assign         =              
+id             a              2              
+add            +              
+id             b              3              
+semi           ;              
+return         return         
+id             c              4              
 semi           ;              
 rbrace         }              
 int            int            
@@ -54,8 +72,7 @@ semi           ;
 id             a              2              
 assign         =              
 id             a              2              
-add            +              
-num            1              
+inc            ++             
 semi           ;              
 rbrace         }              
 return         return         
