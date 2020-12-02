@@ -8,9 +8,9 @@ int lineno=1;
 BLOCKCOMMENT \/\*([^\*^\/]*|[\*^\/*]*|[^\**\/]*)*\*\/
 LINECOMMENT \/\/[^\n]*
 EOL	(\r\n|\r|\n)
-WHILTESPACE [[:blank:]]
+WHITESPACE [[:blank:]]
 
-INTEGER [1-9]+
+INTEGER [0-9]+
 CHAR \'.?\'
 STRING \".+\"
 BOOL [0|1]
@@ -20,20 +20,49 @@ IDENTIFIER [[:alpha:]_][[:alpha:][:digit:]_]*
 {BLOCKCOMMENT}  /* do nothing */
 {LINECOMMENT}  /* do nothing */
 
+"if" return IF;
+"else" return ELSE;
+"return" return RETURN;
+"while" return WHILE ;
+"for" return FOR ;
+"printf"  return PRINTF;
+"scanf"  return SCANF;
+
+"{" return LBRACE;
+"}" return RBRACE;
+
+"(" return LPARE;
+")" return RPARE;
 
 "int" return T_INT;
 "bool" return T_BOOL;
 "char" return T_CHAR;
 "string" return T_STRING;
 
-"==" return LOP_EQ;
-"=" return LOP_ASSIGN;
+"&&"  return AND;
+"||"  return OR;
+"!"  return NOT;
+
+
+">"  return MORE;
+"<"  return LESS;
+">="  return MORE_EQ;
+"<="  return LESS_EQ;
+"!=" return NEQ;
+"==" return EQ;
+
+"=" return ASSIGN;
+
 "+" return ADD;
 "-" return MINUS;
 "*" return MUL;
 "/" return DIV;
-";" return  SEMICOLON;
-
+"%" return MOD;
+";" return SEMICOLON;
+"," return COMMA; 
+"&" return ADDR;
+"++" return PLUS;
+"--" return DESC;
 {INTEGER} {
     TreeNode* node = new TreeNode(lineno, NODE_CONST);
     node->type = TYPE_INT;
@@ -74,7 +103,7 @@ IDENTIFIER [[:alpha:]_][[:alpha:][:digit:]_]*
     return IDENTIFIER;
 }
 
-{WHILTESPACE} /* do nothing */
+{WHITESPACE} /* do nothing */
 
 {EOL} lineno++;
 

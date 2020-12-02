@@ -109,7 +109,11 @@ void TreeNode::printChildrenId() {
         std::cout << " children: [";
         std::cout << this->child->nodeID << " ";
         if (this->child->sibling == nullptr)
+        {
+            std::cout<<"]";
             return;
+        }
+            
         //sibling
         else {
             std::cout << this->child->sibling->nodeID << " ";
@@ -120,7 +124,7 @@ void TreeNode::printChildrenId() {
                 currentsib = currentsib->sibling;
             }
         }
-        std::cout << " ]";
+        std::cout << "]";
     }
 }
 
@@ -153,7 +157,7 @@ void TreeNode::printSpecialInfo() {
 string TreeNode::sType2String(StmtType type) {
     switch (type) {
     case STMT_SKIP:
-        return"skip";
+        return "skip";
         break;
     case STMT_DECL:
         return "decl";
@@ -164,6 +168,21 @@ string TreeNode::sType2String(StmtType type) {
     // case STMT_EXPR:
     //     return "expr";
     //     break;
+    case STMT_IF:
+        return "if";
+        break;
+    case STMT_LOOP:
+        return "loop";
+        break;
+    case STMT_SCANF:
+        return "scanf";
+        break;
+    case STMT_PRINTF:
+        return "printf";
+        break;
+    case STMT_RETURN:
+        return "return";
+        break;
     default:
         break;
     }

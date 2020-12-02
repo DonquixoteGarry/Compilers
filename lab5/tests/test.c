@@ -4,6 +4,7 @@ c=a+b;
 c=a-b;
 c=a*b;
 c=a/b;
+printf("you",a);
 
 
 

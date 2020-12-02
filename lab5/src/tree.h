@@ -21,6 +21,15 @@ enum OperatorType
     OP_MINUS,  // -
     OP_MUL,    // \*
     OP_DIV,    // \/
+    OP_MOD,
+    OP_COMP,    //比较
+    OP_NONE,  
+    OP_ADDR,  //取地址
+    OP_NOT,
+    OP_OR,
+    OP_AND,
+    OP_PLUS,
+    OP_DESC,
 };
 
 enum StmtType {
@@ -29,6 +38,9 @@ enum StmtType {
     STMT_IF, 
     STMT_LOOP,//循环语句
     STMT_ASSIGN,
+    STMT_RETURN,
+    STMT_PRINTF,
+    STMT_SCANF,
 }
 ;
 
