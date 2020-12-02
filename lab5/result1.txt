@@ -1,0 +1,33 @@
+lno@0	@32 program children: [3 7 22 31 ]
+lno@1	@3 statement children: [1 0 2 ] stmt:declare
+lno@1	@1 type type:int
+lno@1	@0 variable varname: a
+lno@1	@2 const type: 0
+lno@2	@7 statement children: [5 4 6 ] stmt:declare
+lno@2	@5 type type:int
+lno@2	@4 variable varname: b
+lno@2	@6 const type: 2
+lno@2	@22 statement children: [12 16 21 ] stmt:if
+lno@2	@12 expression children: [11 ]
+lno@2	@11 expression children: [10 ]
+lno@3	@10 expression children: [8 9 ]
+lno@3	@8 const type: 2
+lno@3	@9 const type: 3
+lno@4	@16 statement children: [14 13 15 ] stmt:declare
+lno@4	@14 type type:int
+lno@4	@13 variable varname: a
+lno@4	@15 const type: 2
+lno@5	@21 statement children: [17 20 ] stmt:assign
+lno@5	@17 variable varname: a
+lno@5	@20 expression children: [18 19 ]
+lno@5	@18 variable varname: a
+lno@5	@19 const type: 2
+lno@5	@31 statement children: [26 30 ] stmt:loop
+lno@5	@26 expression children: [25 ]
+lno@7	@25 expression children: [23 24 ]
+lno@7	@23 variable varname: a
+lno@7	@24 variable varname: b
+lno@7	@30 statement children: [27 28 29 ] stmt:output-printf
+lno@9	@27 const type: "ss"
+lno@9	@28 variable varname: a
+lno@9	@29 variable varname: b

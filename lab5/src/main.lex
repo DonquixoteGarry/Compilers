@@ -38,6 +38,7 @@ IDENTIFIER [[:alpha:]_][[:alpha:][:digit:]_]*
 "bool" return T_BOOL;
 "char" return T_CHAR;
 "string" return T_STRING;
+"void"   return T_VOID;
 
 "&&"  return AND;
 "||"  return OR;

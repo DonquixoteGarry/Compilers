@@ -1,0 +1,80 @@
+lno@0	@80 program children: [1 0 5 8 11 14 17 78 ]
+lno@1	@1 type type:void
+lno@1	@0 variable varname: main
+lno@3	@5 statement children: [3 2 4 ] stmt:declare
+lno@3	@3 type type:int
+lno@3	@2 variable varname: a
+lno@3	@4 variable varname: s
+lno@4	@8 statement children: [6 7 ] stmt:assign
+lno@4	@6 variable varname: a
+lno@4	@7 const type: 10
+lno@5	@11 statement children: [9 10 ] stmt:assign
+lno@5	@9 variable varname: s
+lno@5	@10 const type: 0
+lno@6	@14 statement children: [12 13 ] stmt:declare
+lno@6	@12 type type:char
+lno@6	@13 variable varname: ch
+lno@6	@17 statement children: [15 16 ] stmt:input-scanf
+lno@7	@15 const type: "%d"
+lno@7	@16 variable varname: ch
+lno@7	@78 statement children: [36 39 42 45 48 77 ] stmt:loop
+lno@7	@36 expression children: [35 ]
+lno@8	@35 expression children: [18 34 ]
+lno@8	@18 variable varname: a
+lno@8	@34 expression children: [19 33 ]
+lno@8	@19 const type: 0
+lno@8	@33 expression children: [20 32 ]
+lno@8	@20 variable varname: a
+lno@8	@32 expression children: [21 31 ]
+lno@8	@21 const type: 10
+lno@8	@31 expression children: [22 30 ]
+lno@8	@22 variable varname: a
+lno@8	@30 expression children: [23 29 ]
+lno@8	@23 const type: 100
+lno@8	@29 expression children: [24 28 ]
+lno@8	@24 const type: 10
+lno@8	@28 expression children: [27 ]
+lno@8	@27 expression children: [25 26 ]
+lno@8	@25 variable varname: a
+lno@8	@26 const type: 10
+lno@10	@39 statement children: [37 38 ] stmt:assign
+lno@10	@37 variable varname: a
+lno@10	@38 const type: 1
+lno@11	@42 statement children: [41 40 ] stmt:declare
+lno@11	@41 type type:int
+lno@11	@40 variable varname: a
+lno@12	@45 statement children: [43 44 ] stmt:assign
+lno@12	@43 variable varname: a
+lno@12	@44 const type: 10
+lno@13	@48 statement children: [46 47 ] stmt:assign
+lno@13	@46 variable varname: s
+lno@13	@47 variable varname: a
+lno@13	@77 statement children: [54 57 60 63 76 ] stmt:if
+lno@13	@54 expression children: [53 ]
+lno@13	@53 expression children: [50 52 ]
+lno@13	@50 expression children: [49 ]
+lno@14	@49 variable varname: s
+lno@14	@52 expression children: [51 ]
+lno@14	@51 const type: 10
+lno@14	@57 statement children: [55 56 ] stmt:output-printf
+lno@16	@55 const type: "result is: %d\n"
+lno@16	@56 variable varname: s
+lno@17	@60 statement children: [59 58 ] stmt:declare
+lno@17	@59 type type:int
+lno@17	@58 variable varname: b
+lno@18	@63 statement children: [61 62 ] stmt:assign
+lno@18	@61 variable varname: b
+lno@18	@62 const type: 10
+lno@18	@76 statement children: [67 70 72 75 ] stmt:loop
+lno@19	@67 statement children: [65 64 66 ] stmt:declare
+lno@19	@65 type type:int
+lno@19	@64 variable varname: i
+lno@19	@66 const type: 0
+lno@19	@70 expression children: [68 69 ]
+lno@19	@68 variable varname: i
+lno@19	@69 variable varname: b
+lno@19	@72 expression children: [71 ]
+lno@19	@71 variable varname: i
+lno@19	@75 statement children: [73 74 ] stmt:output-printf
+lno@21	@73 const type: "Have fun: %d\n"
+lno@21	@74 variable varname: i

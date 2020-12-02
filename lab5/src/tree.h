@@ -12,6 +12,7 @@ enum NodeType
     NODE_TYPE, //节点的类型是类型
     NODE_STMT,
     NODE_PROG,
+    NODE_FUNC,
 };
 
 enum OperatorType
@@ -40,6 +41,7 @@ enum StmtType {
     STMT_RETURN,
     STMT_PRINTF,
     STMT_SCANF,
+    STMT_FUNC,
 }
 ;
 

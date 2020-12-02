@@ -1,3 +1,5 @@
+void main() 
+{ 
     int a, s; 
     a = 10; 
     s = 0; 
@@ -19,4 +21,6 @@
                 printf("Have fun: %d\n", i);
             } 
         } 
-    }
+    } 
+}
+// No more compilation error.

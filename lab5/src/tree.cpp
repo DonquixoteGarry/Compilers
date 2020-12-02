@@ -160,7 +160,7 @@ string TreeNode::sType2String(StmtType type) {
         return "skip";
         break;
     case STMT_DECL:
-        return "decl";
+        return "declare";
         break;
     case STMT_ASSIGN:
         return "assign";
@@ -175,14 +175,18 @@ string TreeNode::sType2String(StmtType type) {
         return "loop";
         break;
     case STMT_SCANF:
-        return "scanf";
+        return "input-scanf";
         break;
     case STMT_PRINTF:
-        return "printf";
+        return "output-printf";
         break;
     case STMT_RETURN:
         return "return";
         break;
+    case STMT_FUNC:
+        return "function";
+        break;
+    
     default:
         break;
     }

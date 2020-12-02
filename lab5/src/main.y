@@ -10,15 +10,15 @@
     
 %}
 
-%token T_CHAR T_INT T_STRING T_BOOL 
+%token T_CHAR T_INT T_STRING T_BOOL T_VOID
 %token IDENTIFIER INTEGER CHAR BOOL STRING
 %token ASSIGN 
 
 %token SEMICOLON
 %token ADD MINUS MUL DIV MOD PLUS DESC
-%token ADDR COMMA ELSE FOR WHILE IF 
+%token ADDR COMMA  
 %token LBRACE RBRACE LPARE RPARE  
-%token PRINTF SCANF RETURN
+%token PRINTF SCANF RETURN ELSE FOR WHILE IF MAIN
 %token AND OR NOT 
 %token EQ NEQ MORE_EQ LESS_EQ MORE LESS
 //SELFADD SELFMIN NEG
@@ -46,10 +46,11 @@ statement
 |   loop_stmt {$$ = $1;}
 |   return_stmt SEMICOLON {$$ = $1;}
 |   io_stmt SEMICOLON {$$ = $1;}
+|   function {$$ = $1;}
 ;
 
 declaration
-: T IDENTIFIER ASSIGN expr{  // declare and init
+:   T IDENTIFIER ASSIGN expr{  // declare and init
         TreeNode* node = new TreeNode($1->lineno, NODE_STMT);
         node->stype = STMT_DECL;
         node->addChild($1);
@@ -57,12 +58,33 @@ declaration
         node->addChild($4);
         $$ = node;   
 } 
-| T IDENTIFIER_LIST {                // declare
+|   T IDENTIFIER_LIST {                // declare
         TreeNode* node = new TreeNode($1->lineno, NODE_STMT);
         node->stype = STMT_DECL;
         node->addChild($1);
         node->addChild($2);
         $$ = node;   
+}
+;
+
+function
+:   T_INT MAIN LPARE RPARE LBRACE statements  RBRACE{
+        TreeNode* node = new TreeNode($2->lineno,NODE_FUNC);
+        node->stype = STMT_FUNC;
+        node->addChild($6);
+}
+|   T_VOID MAIN LPARE RPARE LBRACE statements RBRACE{
+        TreeNode* node = new TreeNode($2->lineno,NODE_FUNC);
+        node->stype = STMT_FUNC;
+        node->addChild($1);
+        node->addChild($4);
+}
+|   T IDENTIFIER LPARE RPARE LBRACE statements RBRACE{
+        TreeNode* node = new TreeNode($2->lineno,NODE_FUNC);
+        node->stype = STMT_FUNC;
+        node->addChild($1);
+        node->addChild($2);
+        node->addChild($6);
 }
 ;
 
@@ -380,6 +402,7 @@ T
 |   T_CHAR {$$ = new TreeNode(lineno, NODE_TYPE); $$->type = TYPE_CHAR;}
 |   T_BOOL {$$ = new TreeNode(lineno, NODE_TYPE); $$->type = TYPE_BOOL;}
 |   T_STRING {$$ = new TreeNode(lineno, NODE_TYPE); $$->type = TYPE_STRING;}
+|   T_VOID {$$ = new TreeNode(lineno, NODE_TYPE); $$->type = TYPE_VOID;}
 ;
 
 %%
