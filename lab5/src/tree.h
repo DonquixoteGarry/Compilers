@@ -16,20 +16,19 @@ enum NodeType
 
 enum OperatorType
 {
-    OP_EQ,     // ==
     OP_ADD,    // +
     OP_MINUS,  // -
     OP_MUL,    // \*
     OP_DIV,    // \/
     OP_MOD,
-    OP_COMP,    //比较
-    OP_NONE,  
-    OP_ADDR,  //取地址
+    OP_COMP,    //compare
+    OP_NONE,  //pare
+    OP_ADDR,  //get address
     OP_NOT,
     OP_OR,
     OP_AND,
-    OP_PLUS,
-    OP_DESC,
+    OP_PLUS, //++
+    OP_DESC, //--
 };
 
 enum StmtType {
