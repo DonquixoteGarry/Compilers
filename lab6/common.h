@@ -1,7 +1,11 @@
+#pragma once
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "layer.h"
+#include "struct.h"
 #include "tree.h"
-#define YYSTYPE Node *
+#include "asm.h"
+#define YYSTYPE TreeNode *
 
 #endif

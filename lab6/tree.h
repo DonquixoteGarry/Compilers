@@ -1,101 +1,77 @@
-#ifndef TREE_H
-#define TREE_H
-enum
+#pragma once
+#include<vector>
+#include<string>
+using namespace std;
+enum NodeType
 {
-	STMT_NODE = 0,
-	EXPR_NODE,
-	DECL_NODE
+    NODE_PROG,
+    NODE_STMT,
+    NODE_OP,
+    NODE_TYPE,
+    NODE_BOOL,
+    NODE_CONINT,
+    NODE_CONCHAR,
+    NODE_CONSTR,
+    NODE_FEXPR,
+    NODE_WEXPR,
+    NODE_VAR,
+    NODE_FUNC,
+    NODE_ASSIGN,
+    NODE_STRDEF
 };
-
-enum
+enum OPType
 {
-	WHILE_STMT = 0,
-	PRINT_STMT,
-	COMP_STMT
+    OP_ADD, OP_MINUS, OP_MULTI, OP_DIV, OP_MOD,
+    OP_SADD, OP_SMIN, OP_NEG,
+    OP_NOT, OP_AND, OP_OR,
+    OP_EQ, OP_LT, OP_LE, OP_BT, OP_BE, OP_NE
 };
-
-enum
+enum STMTType
 {
-	TYPE_EXPR = 0,
-	OP_EXPR,
-    CONST_EXPR,
-	ID_EXPR
+    STMT_IF,
+    STMT_WHILE,
+    STMT_FOR,
+    STMT_DECL,
+    STMT_ASSIGN,
+    STMT_PRINTF,
+    STMT_SCANF
 };
-
-enum
+enum VarType
 {
-	VAR_DECL = 0,
+    VAR_VOID,
+    VAR_BOOLEAN,
+    VAR_INTEGER,
+    VAR_CHAR,
+    VAR_STR
 };
-
-enum
+enum VarFlag
 {
-	Notype = 0,
-	Integer,
-	Boolean,
+    VAR_COMMON,
+    VAR_ADDRESS,
+    VAR_POINTER
 };
-
-#define MAX_CHILDREN 4
-
-
-union NodeAttr {
-	int op;
-	int vali;
-	char valc;
-	int symtbl_seq;
-	
-	NodeAttr(void) { op = 0; }
-	NodeAttr(int i)	{ op = i; }
-	NodeAttr(char c) { valc = c; }
-};
-
-struct Label {
-	string true_label;
-	string false_label;
-	string begin_label;
-	string next_label;
-};
-
-struct Node
+static int NodeIndex = 0;
+class TreeNode
 {
-	struct Node *children[MAX_CHILDREN];
-	struct Node *sibling;
-	int lineno;
-	int kind;
-	int kind_kind;
-	NodeAttr attr;
-	int type;
-	int seq;
-	int temp_var;
-	Label label;
-
-	void output(void);
-};
-
-class tree
-{
-private:
-	Node *root;
-	int node_seq = 0;
-	int temp_var_seq = 0;
-	int label_seq = 0;
-
-private:
-	void type_check(Node *t);
-	void get_temp_var(Node *t);
-	string new_label(void);
-	void recursive_get_label(Node *t);
-	void stmt_get_label(Node *t);
-	void expr_get_label(Node *t);
-	void gen_header(ostream &out);
-	void gen_decl(ostream &out, Node *t);
-	void recursive_gen_code(ostream &out, Node *t);
-	void stmt_gen_code(ostream &out, Node *t);
-	void expr_gen_code(ostream &out, Node *t);
-
 public:
-	Node *NewRoot(int kind, int kind_kind, NodeAttr attr, int type,
-		Node *child1 = NULL, Node *child2 = NULL, Node *child3 = NULL, Node *child4 = NULL);
-	void get_label(void);
-	void gen_code(ostream &out);
+    TreeNode(int NodeType);
+    void addChild(TreeNode *child);     // 加个孩子
+    void addSibling(TreeNode *sibling); // 加个兄弟
+    void genNodeId();                   // 递归给id
+    void printAST();                    
+    void printASM();                    
+    TreeNode *getChild(int index);      // 良好的封装
+    int childNum();                     // 是坠吼的
+    vector<int> dim; // Level2的数组
+    int nodeType, nodeIndex;            
+    int opType, stmtType;
+    int varType, int_val, varFlag;
+    bool bool_val;
+    vector<string> code;
+    string str_val;
+    string varName;                     // 属性，看你心情
+private:
+    vector<TreeNode *> CHILDREN;        // 孩子
+    vector<TreeNode *> SIBLING;         // 兄弟
+                                        // 因为左孩子右兄弟结构太麻烦了而且容易出错，所以干脆这么玩
 };
-#endif
