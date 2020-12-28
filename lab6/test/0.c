@@ -7,4 +7,5 @@ void main()
     {
         printf("\na\n");
     }
+    printf("HELLO WORLD,IT IS TEST\n\n");
 }
