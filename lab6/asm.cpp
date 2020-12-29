@@ -1,12 +1,10 @@
 #include"asm.h"
 void rodata::output()
 {
+    int i = 0;
+    for (vector<string>::iterator it = _rodata.begin(); it != _rodata.end(); it++, i++)
     {
-        int i = 0;
-        for (vector<string>::iterator it = _rodata.begin(); it != _rodata.end(); it++, i++)
-        {
-            printf("STR%d:\n\t.string \"%s\"\n", i, (*it).c_str());
-        }
+        printf("STR%d:\n\t.string \"%s\"\n", i, (*it).c_str());
     }
 }
 void rodata::push_back(string str)

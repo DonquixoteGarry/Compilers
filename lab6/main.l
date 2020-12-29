@@ -46,165 +46,167 @@ ALTERcomment "//"
 
 %%
 
-"true" {
-    TreeNode *node = new TreeNode(NODE_BOOL);
-    node->bool_val = true;
-    yylval = node;
-    return TRUE;
-}
+"true"  {
+            TreeNode *node = new TreeNode(NODE_BOOL);
+            node->bool_val = true;
+            yylval = node;
+            return TRUE;
+        }
 "false" {
-    TreeNode *node = new TreeNode(NODE_BOOL);
-    node->bool_val = false;
-    yylval = node;
-    return FALSE;
-}
+            TreeNode *node = new TreeNode(NODE_BOOL);
+            node->bool_val = false;
+            yylval = node;
+            return FALSE;
+        }
 
-"int" return INT;
-"void" return VOID;
-"char" return CHAR;
-"string" return STR;
+"int"       return INT;
+"void"      return VOID;
+"char"      return CHAR;
+"string"    return STR;
  
-"for" return FOR;
-"if" return IF;
-"while" return WHILE;
-"else" return ELSE;
-"struct" return STRUCT;
+"for"       return FOR;
+"if"        return IF;
+"while"     return WHILE;
+"else"      return ELSE;
+"struct"    return STRUCT;
 
-"printf" return PRINTF;
-"scanf" return SCANF;
+"printf"    return PRINTF;
+"scanf"     return SCANF;
 
-"const" return CONST;
+"const"     return CONST;
 
-"." return dot;
-"=" return ASSIGN;
-"+=" return ADDASS;
-"-=" return MINASS;
-"*=" return MULASS;
-"/=" return DIVASS;
-"%=" return MODASS;
+"."         return dot;
+"="         return ASSIGN;
+"+="        return ADDASS;
+"-="        return MINASS;
+"*="        return MULASS;
+"/="        return DIVASS;
+"%="        return MODASS;
 
-"++" return SELFADD;
-"--" return SELFMIN;
-"+" return ADD;
-"-" return MINUS;
-"*" return MULTI;
-"/" return DIV;
-"%" return MOD;
+"++"        return SELFADD;
+"--"        return SELFMIN;
+"+"         return ADD;
+"-"         return MINUS;
+"*"         return MULTI;
+"/"         return DIV;
+"%"         return MOD;
 
-"!" return NOT;
-"&&" return AND;
-"||" return OR;
-"==" return EQUAL;
-"!=" return NEQUAL;
-">" return BT;
-">=" return BE;
-"<" return LT;
-"<=" return LE;
+"!"         return NOT;
+"&&"        return AND;
+"||"        return OR;
+"=="        return EQUAL;
+"!="        return NEQUAL;
+">"         return BT;
+">="        return BE;
+"<"         return LT;
+"<="        return LE;
 
-"," return COMMA;
-";" return SEMICOLON;
-"(" return LPAREN;
-")" return RPAREN;
-"[" return LBRACK;
-"]" return RBRACK;
+","         return COMMA;
+";"         return SEMICOLON;
+"("         return LPAREN;
+")"         return RPAREN;
+"["         return LBRACK;
+"]"         return RBRACK;
+
 "{" {
-    layers.push_back(layer(curlayer, lid++));
-    return LBRACE;
-}
-"}" return RBRACE;
+        layers.push_back(layer(curlayer, lid++));
+        return LBRACE;
+    }
+
+"}"     return RBRACE;
 
 {INTEGER} {
-    TreeNode *node = new TreeNode(NODE_CONINT);
-    node->int_val = atoi(yytext);
-    node->varType = VAR_INTEGER;
-    yylval = node;
-    return INTEGER;
-}
+        TreeNode *node = new TreeNode(NODE_CONINT);
+        node->int_val = atoi(yytext);
+        node->varType = VAR_INTEGER;
+        yylval = node;
+        return INTEGER;
+    }   
 {INT8} {
-    TreeNode *node = new TreeNode(NODE_CONINT);
-    node->int_val = otoi(yytext);
-    node->varType = VAR_INTEGER;
-    yylval = node;
-    return INTEGER;
-}
+        TreeNode *node = new TreeNode(NODE_CONINT);
+        node->int_val = otoi(yytext);
+        node->varType = VAR_INTEGER;
+        yylval = node;
+        return INTEGER;
+    }
 {INT16} {
-    TreeNode *node = new TreeNode(NODE_CONINT);
-    node->int_val = htoi(yytext);
-    node->varType = VAR_INTEGER;
-    yylval = node;
-    return INTEGER;
-}
+        TreeNode *node = new TreeNode(NODE_CONINT);
+        node->int_val = htoi(yytext);
+        node->varType = VAR_INTEGER;
+        yylval = node;
+        return INTEGER;
+    }
 {CHARACTER} {
-    TreeNode *node = new TreeNode(NODE_CONCHAR);
-    node->int_val = int(string(yytext)[1]);
-    node->varType = VAR_CHAR;
-    yylval = node;
-    return CHARACTER;
-}
+        TreeNode *node = new TreeNode(NODE_CONCHAR);
+        node->int_val = int(string(yytext)[1]);
+        node->varType = VAR_CHAR;
+        yylval = node;
+        return CHARACTER;
+    }
 {STRING} {
-    TreeNode *node = new TreeNode(NODE_CONSTR);
-    string str = string(yytext);
-    str.erase(0,str.find_first_not_of("\""));
-    str.erase(str.find_last_not_of("\"") + 1);
-    node->str_val = str;
-    node->varType = VAR_STR;
-    yylval = node;
-    return STRING;
-}
+        TreeNode *node = new TreeNode(NODE_CONSTR);
+        string str = string(yytext);
+        str.erase(0,str.find_first_not_of("\""));
+        str.erase(str.find_last_not_of("\"") + 1);
+        node->str_val = str;
+        node->varType = VAR_STR;
+        yylval = node;
+        return STRING;
+    }
 {ID} {
-    TreeNode *node = new TreeNode(NODE_VAR);
-    node->varName = string(yytext);
-    vector<variable>::reverse_iterator it = curlayer.rbegin();
-    while(it != curlayer.rend())
-    {
-        if((*it).name == node->varName)
+        TreeNode *node = new TreeNode(NODE_VAR);
+        node->varName = string(yytext);
+        vector<variable>::reverse_iterator it = curlayer.rbegin();
+        while(it != curlayer.rend())
         {
-            node->varType = (*it).type;
-            break;
+            if((*it).name == node->varName)
+            {
+                node->varType = (*it).type;
+                break;
+            }
+            it++;
         }
-        it++;
+        yylval = node;
+        return ID;
     }
-    yylval = node;
-    return ID;
-}
 {IDadd} {
-    TreeNode *node = new TreeNode(NODE_VAR);
-    string str = string(yytext);
-    str.erase(str.begin());
-    node->varName = str;
-    node->varFlag = VAR_ADDRESS;
-    vector<variable>::reverse_iterator it = curlayer.rbegin();
-    while(it != curlayer.rend())
-    {
-        if((*it).name == node->varName)
+        TreeNode *node = new TreeNode(NODE_VAR);
+        string str = string(yytext);
+        str.erase(str.begin());
+        node->varName = str;
+        node->varFlag = VAR_ADDRESS;
+        vector<variable>::reverse_iterator it = curlayer.rbegin();
+        while(it != curlayer.rend())
         {
-            node->varType = (*it).type;
-            break;
+            if((*it).name == node->varName)
+            {
+                node->varType = (*it).type;
+                break;
+            }
+            it++;
         }
-        it++;
+        yylval = node;
+        return ID;
     }
-    yylval = node;
-    return ID;
-}
 {IDptr} {
-    TreeNode *node = new TreeNode(NODE_VAR);
-    string str = string(yytext);
-    str.erase(str.begin());
-    node->varName = str;
-    node->varFlag = VAR_POINTER;
-    vector<variable>::reverse_iterator it = curlayer.rbegin();
-    while(it != curlayer.rend())
-    {
-        if((*it).name == node->varName)
+        TreeNode *node = new TreeNode(NODE_VAR);
+        string str = string(yytext);
+        str.erase(str.begin());
+        node->varName = str;
+        node->varFlag = VAR_POINTER;
+        vector<variable>::reverse_iterator it = curlayer.rbegin();
+        while(it != curlayer.rend())
         {
-            node->varType = (*it).type;
-            break;
+            if((*it).name == node->varName)
+            {
+                node->varType = (*it).type;
+                break;
+            }
+            it++;
         }
-        it++;
+        yylval = node;
+        return ID;
     }
-    yylval = node;
-    return ID;
-}
 {EOL}
 {WHITE}
 

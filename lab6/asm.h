@@ -4,23 +4,24 @@
 #include<vector>
 #include"tree.h"
 using namespace std;
-class rodata{
-private:
-    vector<string> _rodata;
+class rodata
+{
 public:
+    vector<string> _rodata;
     void output();
     void push_back(string str);
     int size();
 };
-class function{
-private:
+
+class function
+{
+public:
     int funcType;
     bool buf;
     vector<string> code;
     vector<string> codebuf;
     string name;
     int ret;
-public:
     function(int _funcType, string _name);
     void set(int _funcType, string _name);
     void output();
