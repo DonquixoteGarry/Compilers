@@ -19,7 +19,7 @@ int main ()
     if(root)
     {
         root->genNodeId();
-        printf("# lino\t\ttoken\t\t\tvalue\n");
+        printf("# below is AST \n\n\n# lino\t\ttoken\t\t\tvalue\n\n");
         root->printAST();
     }
 }

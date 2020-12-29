@@ -23,24 +23,24 @@
     }
 %}
 
-INTEGER 0|[1-9][0-9]*
-INT8 00|0[1-9][0-9]+
-INT16 0x0|0x[1-9][0-9]
-CHARACTER \'(.*)\'
-STRING \"(.*)\"
-ID [[:alpha:]_][[:alpha:][:digit:]_]*
-IDadd \&[[:alpha:]_][[:alpha:][:digit:]_]*
-IDptr \*[[:alpha:]_][[:alpha:][:digit:]_]*
+INTEGER             0|[1-9][0-9]*
+INT8                00|0[1-9][0-9]+
+INT16               0x0|0x[1-9][0-9]
+CHARACTER           \'(.*)\'
+STRING              \"(.*)\"
+ID                  [[:alpha:]_][[:alpha:][:digit:]_]*
+ID_ADDR               \&[[:alpha:]_][[:alpha:][:digit:]_]*
+ID_POINTER               \*[[:alpha:]_][[:alpha:][:digit:]_]*
 
-EOL (\r\n|\n)
-WHITE [\t ]
+EOL                 (\r\n|\n)
+WHITE               [\t ]
 
-commentbegin "/*"
-commentspace [ \t]
-commentelement [^ \t\n]
-commentnextline \n
-commentend "*/"
-ALTERcomment "//"
+commentbegin        "/*"
+commentspace        [ \t]
+commentelement      [^ \t\n]
+commentnextline     \n
+commentend          "*/"
+ALTERcomment        "//"
 %x LONGCOMMENT
 %x SHORTCOMMENT
 
@@ -83,26 +83,26 @@ ALTERcomment "//"
 "/="        return DIVASS;
 "%="        return MODASS;
 
-"++"        return SELFADD;
-"--"        return SELFMIN;
+"++"        return ANSC;
+"--"        return DESC;
 "+"         return ADD;
-"-"         return MINUS;
-"*"         return MULTI;
+"-"         return SUB;
+"*"         return MUL;
 "/"         return DIV;
 "%"         return MOD;
 
 "!"         return NOT;
 "&&"        return AND;
 "||"        return OR;
-"=="        return EQUAL;
-"!="        return NEQUAL;
-">"         return BT;
-">="        return BE;
-"<"         return LT;
-"<="        return LE;
+"=="        return EQ;
+"!="        return NEQ;
+">"         return MORE;
+">="        return MORE_EQ;
+"<"         return LESS;
+"<="        return LESS_EQ;
 
 ","         return COMMA;
-";"         return SEMICOLON;
+";"         return SEMI;
 "("         return LPAREN;
 ")"         return RPAREN;
 "["         return LBRACK;
@@ -169,7 +169,7 @@ ALTERcomment "//"
         yylval = node;
         return ID;
     }
-{IDadd} {
+{ID_ADDR} {
         TreeNode *node = new TreeNode(NODE_VAR);
         string str = string(yytext);
         str.erase(str.begin());
@@ -188,7 +188,7 @@ ALTERcomment "//"
         yylval = node;
         return ID;
     }
-{IDptr} {
+{ID_POINTER} {
         TreeNode *node = new TreeNode(NODE_VAR);
         string str = string(yytext);
         str.erase(str.begin());

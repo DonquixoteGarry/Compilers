@@ -1,4 +1,5 @@
 #include"asm.h"
+
 void rodata::output()
 {
     int i = 0;
@@ -21,7 +22,6 @@ function::function(int _funcType, string _name)
     funcType = _funcType;
     name = _name;
     ret = 0;
-    buf = false;
 }
 void function::set(int _funcType, string _name)
 {

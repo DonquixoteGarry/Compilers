@@ -8,6 +8,7 @@ class rodata
 {
 public:
     vector<string> _rodata;
+    
     void output();
     void push_back(string str);
     int size();
@@ -17,12 +18,12 @@ class function
 {
 public:
     int funcType;
-    bool buf;
     vector<string> code;
-    vector<string> codebuf;
     string name;
     int ret;
+
     function(int _funcType, string _name);
+    
     void set(int _funcType, string _name);
     void output();
     void addCode(string _code);

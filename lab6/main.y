@@ -33,24 +33,24 @@
 
 %start program
 
-%token ID IDadd IDptr INTEGER CHARACTER STRING
+%token ID ID_ADDR ID_POINTER INTEGER CHARACTER STRING
 %token IF ELSE WHILE FOR STRUCT
 %token CONST
 %token INT VOID CHAR STR
-%token LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE COMMA SEMICOLON
+%token LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE COMMA SEMI
 %token TRUE FALSE
-%token ADD MINUS MULTI DIV MOD SELFADD SELFMIN NEG
+%token ADD SUB MUL DIV MOD ANSC DESC NEG
 %token ASSIGN ADDASS MINASS MULASS DIVASS MODASS
-%token EQUAL NEQUAL BT BE LT LE NOT AND OR
+%token EQ NEQ MORE MORE_EQ LESS LESS_EQ NOT AND OR
 %token PRINTF SCANF
 %token dot
 
 %right ASSIGN ADDASS MINASS MULASS DIVASS MODASS
-%right SELFADD SELFMIN
+%right ANSC DESC
 %right OR
-%left ADD MINUS
-%left MULTI DIV MOD
-%left EQUAL NEQUAL BT BE LT LE
+%left ADD SUB
+%left MUL DIV MOD
+%left EQ NEQ MORE MORE_EQ LESS LESS_EQ
 %right AND
 %right NOT
 %right NEG 
@@ -88,12 +88,12 @@ statement
         lid--;
     }
     | call_func {$$=$1;}
-    | printf SEMICOLON {$$=$1;}
-    | scanf SEMICOLON {$$=$1;}
+    | printf SEMI {$$=$1;}
+    | scanf SEMI {$$=$1;}
     | struct_def {$$=$1;}
     ;
 struct_def
-    : STRUCT ID LBRACE struct_ins RBRACE args SEMICOLON
+    : STRUCT ID LBRACE struct_ins RBRACE args SEMI
     {
         TreeNode* node = new TreeNode(NODE_STRDEF);
         node->addChild($2);
@@ -111,7 +111,7 @@ struct_def
         }
         $$=node;
     }
-    | STRUCT ID LBRACE struct_ins RBRACE SEMICOLON
+    | STRUCT ID LBRACE struct_ins RBRACE SEMI
     {
         TreeNode* node = new TreeNode(NODE_STRDEF);
         node->addChild($2);
@@ -129,7 +129,7 @@ struct_ins
     | struct_ins instruction {$$=$1;$$->addSibling($2);}
     ;
 ass
-    : IDS ASSIGN expr{
+    : ID_val ASSIGN expr{
         string index;
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->addChild($1);
@@ -158,7 +158,7 @@ ass
         if(insflag) _function.addCode("\tsubl\t$4, %esp\n");
         END1:$$=node;
     }
-    | IDS ADDASS expr{
+    | ID_val ADDASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_ADD;
         node->addChild($1);
@@ -181,7 +181,7 @@ ass
         }
         $$=node;
     }
-    | IDS MINASS expr{
+    | ID_val MINASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_MINUS;
         node->addChild($1);
@@ -206,7 +206,7 @@ ass
         }
         $$=node;
     }
-    | IDS MULASS expr{
+    | ID_val MULASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_MULTI;
         node->addChild($1);
@@ -230,7 +230,7 @@ ass
         }
         $$=node;
     }
-    | IDS DIVASS expr{
+    | ID_val DIVASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_DIV;
         node->addChild($1);
@@ -250,7 +250,7 @@ ass
         }
         $$=node;
     }
-    | IDS MODASS expr{
+    | ID_val MODASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_MOD;
         node->addChild($1);
@@ -270,7 +270,7 @@ ass
         }
         $$=node;
     }
-    | IDS SELFADD {
+    | ID_val ANSC {
         TreeNode *node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_SADD;
         node->addChild($1);
@@ -287,7 +287,7 @@ ass
         }
         $$=node; 
     }
-    | IDS SELFMIN {
+    | ID_val DESC {
         TreeNode *node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_SMIN;
         node->addChild($1);
@@ -306,7 +306,7 @@ ass
     }
     ;
 args
-    : IDS {
+    : ID_val {
         $$=$1; 
         string index;
         if($1->int_val == -1)
@@ -317,7 +317,7 @@ args
         if(insflag) _function.addCode("\tsubl\t$4, %esp\n");
     }
     | ass {$$=$1;}
-    | args COMMA IDS {
+    | args COMMA ID_val {
         $$=$1;
         $$->addSibling($3);
         string index;
@@ -330,16 +330,16 @@ args
     }
     | args COMMA ass {$$=$1; $$->addSibling($3);}
     ;
-call_args
+arg_list
     : expr {$$=$1;}
-    | IDadd {$$=$1;}
-    | IDptr {$$=$1;}
-    | call_args COMMA expr {$$=$1; $$->addSibling($3);}
-    | call_args COMMA IDadd {$$=$1; $$->addSibling($3);}
-    | call_args COMMA IDptr {$$=$1; $$->addSibling($3);}
+    | ID_ADDR {$$=$1;}
+    | ID_POINTER {$$=$1;}
+    | arg_list COMMA expr {$$=$1; $$->addSibling($3);}
+    | arg_list COMMA ID_ADDR {$$=$1; $$->addSibling($3);}
+    | arg_list COMMA ID_POINTER {$$=$1; $$->addSibling($3);}
     ;
 call_func
-    : type ID LPAREN call_args RPAREN statement {
+    : type ID LPAREN arg_list RPAREN statement {
         TreeNode *node=new TreeNode(NODE_FUNC);
         node->addChild($1);
         node->addChild($2);
@@ -476,7 +476,7 @@ for_expr
         $$ = node;
     }
 for_expr1
-    : LPAREN instruction bool_expr SEMICOLON {
+    : LPAREN instruction bool_expr SEMI {
         TreeNode *node=new TreeNode(NODE_FEXPR);
         node->int_val = forctr;
         node->addChild($2);
@@ -506,7 +506,7 @@ bool_statment
     : LPAREN bool_expr RPAREN {$$=$2;}
     ;
 instruction
-    : type args SEMICOLON {
+    : type args SEMI {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_DECL;
         node->addChild($1);
@@ -569,7 +569,7 @@ instruction
         insflag = 0;
         tmpins = curlayer.size() + 1;
     }
-    | args SEMICOLON {
+    | args SEMI {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_ASSIGN;
         node->addChild($1);
@@ -584,7 +584,7 @@ instruction
         }
         $$=node;  
     }
-    | CONST type args SEMICOLON {
+    | CONST type args SEMI {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_DECL;
         node->addChild($2);
@@ -625,7 +625,7 @@ instruction
     }
     ;
 printf
-    : PRINTF LPAREN STRING COMMA call_args RPAREN {
+    : PRINTF LPAREN STRING COMMA arg_list RPAREN {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_PRINTF;
         node->addChild($3);
@@ -705,7 +705,7 @@ _SCANF
         scanflag = 1;
     }
 scanf
-    : _SCANF LPAREN STRING COMMA call_args RPAREN {
+    : _SCANF LPAREN STRING COMMA arg_list RPAREN {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_SCANF;
         node->addChild($3);
@@ -804,7 +804,7 @@ bool_expr
             _function.addCode("\tpushl\t$0\n");
         }
     }
-    | expr EQUAL expr {
+    | expr EQ expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_EQ;
         node->addChild($1);
@@ -838,7 +838,7 @@ bool_expr
         }
         $$=node;
     }
-    | expr NEQUAL expr {
+    | expr NEQ expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_NE;
         node->addChild($1);
@@ -887,7 +887,7 @@ bool_expr
         }
         $$=node;
     }
-    | expr BT expr {
+    | expr MORE expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_BT;
         node->addChild($1);
@@ -936,7 +936,7 @@ bool_expr
             _function.addCode(".BB" + to_string(bool_breaker-1) + ":\n");
         }
     }
-    | expr BE expr {
+    | expr MORE_EQ expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_BE;
         node->addChild($1);
@@ -985,7 +985,7 @@ bool_expr
             _function.addCode(".BB" + to_string(bool_breaker-1) + ":\n");
         }
     }
-    | expr LT expr {
+    | expr LESS expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_LT;
         node->addChild($1);
@@ -1034,7 +1034,7 @@ bool_expr
         }
         $$=node;
     }
-    | expr LE expr {
+    | expr LESS_EQ expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_LE;
         node->addChild($1);
@@ -1225,7 +1225,7 @@ bool_expr
     }
     ;
 expr
-    : IDS {
+    : ID_val {
         $$=$1;
         vector<variable>::reverse_iterator it = curlayer.rbegin();
         int i = 0;
@@ -1299,7 +1299,7 @@ expr
         }
         $$=node;   
     }
-    | expr MINUS expr {
+    | expr SUB expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_MINUS;
         node->addChild($1);
@@ -1325,7 +1325,7 @@ expr
         }
         $$=node;   
     }
-    | expr MULTI expr {
+    | expr MUL expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_MULTI;
         node->addChild($1);
@@ -1403,7 +1403,7 @@ expr
         }
         $$=node;   
     }
-    | MINUS expr %prec NEG {
+    | SUB expr %prec NEG {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_NEG;
         node->addChild($2);
@@ -1464,7 +1464,7 @@ IDARR
         $$->dim.push_back($3->int_val);
     }
     ;
-IDcld
+ID_child
     : ID dot ID {
         $$=$1;
         $$->varType = $3->varType;
@@ -1485,18 +1485,18 @@ IDcld
         $$->varType = $3->varType;
         $$->addChild($3);
     }
-    | IDcld dot ID {
+    | ID_child dot ID {
         $$=$1;
         $$->varType = $3->varType;
         $$->addChild($3);
     }
-    | IDcld dot IDARR {
+    | ID_child dot IDARR {
         $$=$1;
         $$->varType = $3->varType;
         $$->addChild($3);
     }
     ;
-IDS 
+ID_val 
     : ID {
         $$=$1;
         if($$->int_val == -1)
@@ -1517,5 +1517,5 @@ IDS
         }
     }
     | IDARR {$$=$1;}
-    | IDcld {$$=$1;}
+    | ID_child {$$=$1;}
 %%
