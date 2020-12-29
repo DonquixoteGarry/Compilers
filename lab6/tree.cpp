@@ -207,7 +207,7 @@ void TreeNode::printAST()
     default:
         break;
     }
-    printf("# %d\t%s\t%s\tchild:", this->nodeIndex, NType.c_str(), value.c_str());
+    printf("#\t%d\t\t%s\t\t%s\t\t\tchild:", this->nodeIndex, NType.c_str(), value.c_str());
     for (int i = 0; i < this->CHILDREN.size(); i++)
     {
         printf(" %d", this->CHILDREN[i]->nodeIndex);

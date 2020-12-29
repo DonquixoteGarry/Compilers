@@ -19,6 +19,7 @@ int main ()
     if(root)
     {
         root->genNodeId();
+        printf("# lino\t\ttoken\t\t\tvalue\n");
         root->printAST();
     }
 }

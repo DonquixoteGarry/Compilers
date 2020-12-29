@@ -78,16 +78,9 @@ statement
     | for {$$=$1;}
     | LBRACE statements RBRACE {
         $$=$2;
-        // for(int i = layers.size()-1;i >= 0;i--)
-        // {
-        //     layers[i].output();
-        // }
         vector<variable> var = layers[layers.size()-1].varies;
         while(curlayer.size()!=var.size())
         {
-            // printf("layer %d\t", lid);
-            // variable tmpv = curlayer[curlayer.size()-1];
-            // printf("%d\t\t%s\n", tmpv.type, tmpv.name.c_str());
             if(curlayer[curlayer.size()-1].type != 4) _function.addCode("\taddl\t$4, %esp\n");
             curlayer.pop_back();
         }
@@ -1096,11 +1089,6 @@ bool_expr
         node->addChild($1);
         node->addChild($3);
         node->varType=VAR_BOOLEAN;
-        // if($1->varType != VAR_BOOLEAN || $3->varType != VAR_BOOLEAN)
-        // {
-        //     printf("INVALID TYPE\n");
-        //     exit(1);
-        // }
         if(whileflag)
         {
             whilecode.push_back("\tpopl\t%eax\n");
@@ -1151,11 +1139,6 @@ bool_expr
         node->addChild($1);
         node->addChild($3);
         node->varType=VAR_BOOLEAN;
-        // if($1->varType != VAR_BOOLEAN || $3->varType != VAR_BOOLEAN)
-        // {
-        //     printf("INVALID TYPE\n");
-        //     exit(1);
-        // }
         if(whileflag)
         {
             whilecode.push_back("\tpopl\t%eax\n");
@@ -1205,11 +1188,6 @@ bool_expr
         node->opType=OP_NOT;
         node->addChild($2);
         node->varType=VAR_BOOLEAN;
-        // if($2->varType != VAR_BOOLEAN)
-        // {
-        //     printf("INVALID TYPE\n");
-        //     exit(1);
-        // }
         string str = "\tpopl\t%eax\n";
         str += "\tcmpl\t$0, %eax\n";
         str += "\tjne\t.BB" + to_string(bool_breaker++) + "\n";
