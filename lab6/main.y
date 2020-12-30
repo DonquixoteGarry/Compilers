@@ -368,8 +368,8 @@ _else
         curlabel = 0;
     }
     ;
-iftest
-    : IF bool_statment
+if_pre
+    : IF bool_stmt
     {
         _function.addCode("\tpopl\t%eax\n");
         _function.addCode("\tcmp\t$1, %eax\n");
@@ -381,7 +381,7 @@ iftest
     }
     ;
 if_else
-    : iftest statement %prec LOWER_THEN_ELSE {
+    : if_pre statement %prec LOWER_THEN_ELSE {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_IF;
         node->addChild($1);
@@ -392,7 +392,7 @@ if_else
         label.pop_back();
         $$=node;
     }
-    | iftest statement _else statement {
+    | if_pre statement _else statement {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_IF;
         node->addChild($1);
@@ -405,12 +405,12 @@ if_else
         $$=node;
     }
     ;
-_while
+while_token
     : WHILE {
         whileflag = 1;
     }
-whiletest
-    : _while bool_statment {
+while_pre
+    : while_token bool_stmt {
         TreeNode *node=new TreeNode(NODE_WEXPR);
         node->int_val=whilectr;
         node->addChild($2);
@@ -427,7 +427,7 @@ whiletest
         $$=node;
     }
 while
-    : whiletest statement {
+    : while_pre statement {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_WHILE;
         node->addChild($1);
@@ -438,7 +438,7 @@ while
     }
     ;
 for
-    : _for for_expr statement{
+    : for_token for_expr statement{
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_FOR;
         node->addChild($2);
@@ -459,7 +459,7 @@ for
         _function.addCode("FE"+to_string($2->getChild(0)->int_val)+":\n");
     }
     ;
-_for
+for_token
     : FOR
     {
         $$=$1;
@@ -502,7 +502,7 @@ for_expr2
         $$ = node;
         forlevel++;
     }
-bool_statment
+bool_stmt
     : LPAREN bool_expr RPAREN {$$=$2;}
     ;
 instruction
@@ -699,13 +699,13 @@ printf
         $$=node;
     }
     ;
-_SCANF
+scanf_token
     : SCANF
     {
         scanflag = 1;
     }
 scanf
-    : _SCANF LPAREN STRING COMMA arg_list RPAREN {
+    : scanf_token LPAREN STRING COMMA arg_list RPAREN {
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_SCANF;
         node->addChild($3);
