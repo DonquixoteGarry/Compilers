@@ -6,7 +6,7 @@ using std::endl;
 TreeNode *root=nullptr;
 vector<layer> layers;
 vector<var> work_layer;
-roda_part ro_data;
+rodata_part ro_data;
 func_part func_code(-1, "");
 int layerid = 0;
 int main ()

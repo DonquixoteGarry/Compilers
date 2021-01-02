@@ -1,5 +1,5 @@
 #include"asm.h"
-void roda_part::output()
+void rodata_part::output()
 {
     //按句打印只读变量汇编代码块
     int i = 0;
@@ -8,13 +8,13 @@ void roda_part::output()
         printf("STR%d:\n\t.string \"%s\"\n", i, (*it).c_str());
     }
 }
-void roda_part::emplace_back(string str)
+void rodata_part::emplace_back(string str)
 {
     //在只读变量表的汇编代码块中增加一句代码
     //emplace_back是vector的原地构造函数
     ro_data.emplace_back(str);
 }
-int roda_part::size()
+int rodata_part::size()
 {
     //返回只读变量表汇编代码块的句数
     return ro_data.size();

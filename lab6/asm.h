@@ -5,7 +5,7 @@
 #include"tree.h"
 using namespace std;
 
-class roda_part
+class rodata_part
 {
 public:
     vector<string> ro_data;

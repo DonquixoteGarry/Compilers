@@ -60,8 +60,7 @@ public:
     void getNodeID();                   
     void printAST();                                    
     TreeNode *getChild(int index);      
-    int childNum();                     
-    vector<int> dim; 
+    int childNum();
     int nodeType, nodeIndex;            
     int opType, stmtType;
     int varType, int_val, varFlag;

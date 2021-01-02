@@ -14,8 +14,8 @@ INTEGER 0|[1-9][0-9]*
 CHARACTER \'(.*)\'
 STRING \"(.*)\"
 ID [[:alpha:]_][[:alpha:][:digit:]_]*
-andID \&[[:alpha:]_][[:alpha:][:digit:]_]*
-starID \*[[:alpha:]_][[:alpha:][:digit:]_]*
+addr_id \&[[:alpha:]_][[:alpha:][:digit:]_]*
+content_id \*[[:alpha:]_][[:alpha:][:digit:]_]*
 
 EOL (\r\n|\n)
 WHITE [\t ]
@@ -138,7 +138,7 @@ commentline "//"
     yylval = node;
     return ID;
 }
-{andID} {
+{addr_id} {
     TreeNode *node = new TreeNode(NODE_VAR);
     string str = string(yytext);
     str.erase(str.begin());
@@ -157,7 +157,7 @@ commentline "//"
     yylval = node;
     return ID;
 }
-{starID} {
+{content_id} {
     TreeNode *node = new TreeNode(NODE_VAR);
     string str = string(yytext);
     str.erase(str.begin());

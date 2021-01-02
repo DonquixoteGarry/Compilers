@@ -8,7 +8,7 @@
     extern vector<layer> layers;
     extern vector<var> work_layer;
     extern int layerid;
-    extern roda_part ro_data;
+    extern rodata_part ro_data;
     extern func_part func_code;
     int temp_dec_size = 1;
     bool declear_flag = 0;
@@ -31,7 +31,7 @@
 
 %start program
 
-%token ID andID starID INTEGER CHARACTER STRING
+%token ID addr_id content_id INTEGER CHARACTER STRING
 %token IF ELSE WHILE FOR RETURN
 %token CONST
 %token INT VOID CHAR STR
@@ -90,7 +90,7 @@ statement: instruction
     | funcs {$$=$1;}
     | printf SEMICOLON {$$=$1;}
     | scanf SEMICOLON {$$=$1;}
-    | retu
+    | return_stmt
     ;
 
 assign: _ID ASSIGN expr
@@ -308,11 +308,11 @@ params: _ID
     ;
 args: expr
      {$$=$1;}
-    | andID {$$=$1;}
-    | starID {$$=$1;}
+    | addr_id {$$=$1;}
+    | content_id {$$=$1;}
     | args COMMA expr {$$=$1; $$->addSibling($3);}
-    | args COMMA andID {$$=$1; $$->addSibling($3);}
-    | args COMMA starID {$$=$1; $$->addSibling($3);}
+    | args COMMA addr_id {$$=$1; $$->addSibling($3);}
+    | args COMMA content_id {$$=$1; $$->addSibling($3);}
     ;
 funcs: type ID SLB args SRB statement
      {
@@ -482,7 +482,7 @@ for_expr3: assign SRB
         forlevel++;
     }
     ;    
-retu: RETURN expr SEMICOLON{
+return_stmt: RETURN expr SEMICOLON{
         if(while_flag)
         {
             for(int i=0;i<work_layer.size();i++)
@@ -578,10 +578,6 @@ instruction: type params SEMICOLON
                     goto EA;
                 }
                 work_layer.emplace_back(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
-                for(int j = 0;j < child->dim.size();j++)
-                {
-                    work_layer[work_layer.size()-1].dim.emplace_back(child->dim[j]);
-                }
                 if(for_flag_begin) tmpfor.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
             }
             EA:
@@ -634,10 +630,6 @@ instruction: type params SEMICOLON
             if(!praseErr_flag)
             {
                 work_layer.emplace_back(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
-                for(int j = 0;j < child->dim.size();j++)
-                {
-                    work_layer[work_layer.size()-1].dim.emplace_back(child->dim[j]);
-                }
                 if(for_flag_begin) tmpfor.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
             }
             praseErr_flag = 0;
@@ -1469,7 +1461,7 @@ expr: _ID
             whilecode.emplace_back("\tidivl\t%ebx\n");
             whilecode.emplace_back("\tpushl\t%edx\n");
         }
-         else if(for_flag_expr3)
+        else if(for_flag_expr3)
         {
             forcode.emplace_back("\tpopl\t%ebx\n");
             forcode.emplace_back("\tpopl\t%eax\n");

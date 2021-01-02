@@ -8,16 +8,15 @@ public:
     int type;
     string name;
     int ro_index;
-    vector<int> dim;
     var()
     {
         this->type = 0;
         this->name = "";
     }
-    var(const var& v)
+    var(const var &old_var)
     {
-        this->type = v.type;
-        this->name = v.name;
+        this->type = old_var.type;
+        this->name = old_var.name;
     }
     var(int type, string name)
     {
@@ -36,9 +35,9 @@ class temp_var
 public:
     var v;
     int l;
-    temp_var(var v, int l)
+    temp_var(var _var, int l)
     {
-        this->v = var(v.type, v.name);
+        this->v = var(_var.type, _var.name);
         this->l = l;
     }
 };
