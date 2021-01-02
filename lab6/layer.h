@@ -7,8 +7,8 @@ class variable
 public:
     int type;
     string name;
-    vector<int> dim;
     int ro_index;
+    vector<int> dim;
     variable()
     {
         this->type = 0;
@@ -46,17 +46,17 @@ class layer
 {
 public:
     vector<variable> varies;
-    int lindex;
+    int index;
     void output()
     {
         for(int i = 0;i < varies.size();i++)
         {
-            printf("%s  %d\n", varies[i].name.c_str(), lindex);
+            printf("%s  %d\n", varies[i].name.c_str(), index);
         }
     }
-    layer(vector<variable> varies, int lindex)
+    layer(vector<variable> varies, int index)
     {
         this->varies = varies;
-        this->lindex = lindex;
+        this->index = index;
     }
 };

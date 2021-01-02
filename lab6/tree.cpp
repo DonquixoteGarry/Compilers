@@ -33,27 +33,29 @@ TreeNode::TreeNode(int NodeType)
 }
 void TreeNode::addChild(TreeNode* child)
 {
-    this->CHILDREN.push_back(child);
+    this->CHILDREN.emplace_back(child);
     while (!child->SIBLING.empty())
     {
-        this->CHILDREN.push_back(child->SIBLING[0]);
+        this->CHILDREN.emplace_back(child->SIBLING[0]);
         child->SIBLING.erase(begin(child->SIBLING));
     }
 }
 void TreeNode::addSibling(TreeNode *sibling)
 {
-    this->SIBLING.push_back(sibling);
+    this->SIBLING.emplace_back(sibling);
 }
-void TreeNode::genNodeId()
+void TreeNode::getNodeID()
 {
     nodeIndex = NodeIndex++;
     for (int i = 0; i < this->CHILDREN.size(); i++)
     {
-        this->CHILDREN[i]->genNodeId();
+        this->CHILDREN[i]->getNodeID();
     }
 }
 void TreeNode::printAST()
 {
+    FILE *p = NULL;
+    p = fopen("test/tree.res","ab+");
     string NType, value;
     switch (this->nodeType)
     {
@@ -118,6 +120,9 @@ void TreeNode::printAST()
         case OP_NEG:
             value = "NEGATIVE";
             break;
+        case OP_POS:
+            value = "POSITIVE";
+            break;
         case OP_NOT:
             value = "!\t\t";
             break;
@@ -136,10 +141,10 @@ void TreeNode::printAST()
         case OP_LE:
             value = "<=\t\t";
             break;
-        case OP_BT:
+        case OP_GT:
             value = ">\t\t";
             break;
-        case OP_BE:
+        case OP_GE:
             value = ">=\t\t";
             break;
         case OP_NE:
@@ -207,27 +212,21 @@ void TreeNode::printAST()
     default:
         break;
     }
-    printf("#\t%d\t\t%s\t\t%s\t\t\tchild:", this->nodeIndex, NType.c_str(), value.c_str());
+    fprintf(p,"# %d\t%s\t%s\tchild:", this->nodeIndex, NType.c_str(), value.c_str());
+    int havechild = 0;
     for (int i = 0; i < this->CHILDREN.size(); i++)
     {
-        printf(" %d", this->CHILDREN[i]->nodeIndex);
+        havechild = 1;
+        fprintf(p," %d", this->CHILDREN[i]->nodeIndex);
     }
-    printf("\n");
+    if(!havechild){fprintf(p," NULL");};
+    fprintf(p,"\n");
+    fclose(p);
     for (int i = 0; i < this->CHILDREN.size(); i++)
     {
         this->CHILDREN[i]->printAST();
     }
-}
-void TreeNode::printASM()
-{
-    for (int i = 0; i < CHILDREN.size(); i++)
-    {
-        CHILDREN[i]->printASM();
-    }
-    for (int i = 0; i < code.size(); i++)
-    {
-        printf("%s", code[i].c_str());
-    }
+    
 }
 TreeNode* TreeNode::getChild(int index)
 {

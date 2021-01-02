@@ -4,31 +4,27 @@
 #include<vector>
 #include"tree.h"
 using namespace std;
-class rodata
-{
+class roda_part{
+private:
+    vector<string> ro_data;
 public:
-    vector<string> _rodata;
-    
     void output();
-    void push_back(string str);
+    void emplace_back(string str);
     int size();
 };
-
-class function
-{
-public:
+class func_part{
+private:
     int funcType;
+    bool buf;
     vector<string> code;
+    vector<string> codebuf;
     string name;
     int ret;
-
-    function(int _funcType, string _name);
-    
-    void set(int _funcType, string _name);
+public:
+    func_part(int ft, string fn);
+    void set(int ft, string fn);
     void output();
     void addCode(string _code);
     string delCode();
     void resetCode(string _code);
-    void ASM_Expr_erg(TreeNode *node);
-    void ASM_Expr(TreeNode* node);
 };

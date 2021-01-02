@@ -2,10 +2,6 @@
 #include<vector>
 #include<string>
 using namespace std;
-
-static int NodeIndex = 0;
-
-
 enum NodeType
 {
     NODE_PROG,
@@ -25,23 +21,10 @@ enum NodeType
 };
 enum OPType
 {
-    OP_ADD, 
-    OP_MINUS, 
-    OP_MULTI, 
-    OP_DIV, 
-    OP_MOD,
-    OP_SADD, 
-    OP_SMIN, 
-    OP_NEG,
-    OP_NOT, 
-    OP_AND, 
-    OP_OR,
-    OP_EQ, 
-    OP_LT, 
-    OP_LE, 
-    OP_BT, 
-    OP_BE, 
-    OP_NE
+    OP_ADD, OP_MINUS, OP_MULTI, OP_DIV, OP_MOD,
+    OP_SADD, OP_SMIN, OP_NEG, OP_POS,
+    OP_NOT, OP_AND, OP_OR,
+    OP_EQ, OP_LT, OP_LE, OP_GT, OP_GE, OP_NE
 };
 enum STMTType
 {
@@ -67,26 +50,26 @@ enum VarFlag
     VAR_ADDRESS,
     VAR_POINTER
 };
-
+static int NodeIndex = 0;
 class TreeNode
 {
 public:
     TreeNode(int NodeType);
-    void addChild(TreeNode *child);    
-    void addSibling(TreeNode *sibling);
-    void genNodeId();                   
-    void printAST();            
-    void printASM();            
-    TreeNode *getChild(int index);     
-    int childNum();                    
-    vector<int> dim; // Level2的数组
+    void addChild(TreeNode *child);     
+    void addSibling(TreeNode *sibling); 
+    void getNodeID();                   
+    void printAST();                                    
+    TreeNode *getChild(int index);      
+    int childNum();                     
+    vector<int> dim; 
     int nodeType, nodeIndex;            
     int opType, stmtType;
     int varType, int_val, varFlag;
     bool bool_val;
     vector<string> code;
     string str_val;
-    string varName;
+    string varName;                     
+private:
     vector<TreeNode *> CHILDREN;        
     vector<TreeNode *> SIBLING;         
 };

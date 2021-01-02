@@ -3,27 +3,20 @@
 #include<iostream>
 using std::cout;
 using std::endl;
-
 TreeNode *root=nullptr;
 vector<layer> layers;
-vector<variable> curlayer;
-vector<struct_def> strdef;
-rodata _rodata;
-function _function(-1, "");
-
-int lid = 0;
-
+vector<variable> work_layer;
+roda_part ro_data;
+func_part func_code(-1, "");
+int layerid = 0;
 int main ()
 {
     yyparse();
-    if(root)
-    {
-        root->genNodeId();
-        printf("# below is AST \n\n\n# lino\t\ttoken\t\t\tvalue\n\n");
+    if(root){
+        root->getNodeID();
         root->printAST();
     }
 }
-
 int yyerror(char const* message)
 {
   cout << message << endl;

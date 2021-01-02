@@ -3,221 +3,190 @@
     #include"common.h"
     #include"main.tab.hh"
     int firstword = 0;
-    extern vector<layer> layers;
-    extern vector<variable> curlayer;
-    extern int lid;
+    extern vector<layer> layers;//作用域向量
+    extern vector<variable> work_layer;//当前作用域的变量表
     
-    int otoi(string s)
-    {
-        int ans=0;
-        for(int i=1;i<s.size();i++)
-            ans=ans*8+s[i]-'0';
-        return ans;
-    }
-    int htoi(string s)
-    {
-        int ans=0;
-        for(int i=1;i<s.size();i++)
-            ans=ans*16+s[i]-'0';
-        return ans;
-    }
+    extern int layerid;
+    
 %}
 
-INTEGER             0|[1-9][0-9]*
-INT8                00|0[1-9][0-9]+
-INT16               0x0|0x[1-9][0-9]
-CHARACTER           \'(.*)\'
-STRING              \"(.*)\"
-ID                  [[:alpha:]_][[:alpha:][:digit:]_]*
-ID_ADDR               \&[[:alpha:]_][[:alpha:][:digit:]_]*
-ID_POINTER               \*[[:alpha:]_][[:alpha:][:digit:]_]*
+INTEGER 0|[1-9][0-9]*
+CHARACTER \'(.*)\'
+STRING \"(.*)\"
+ID [[:alpha:]_][[:alpha:][:digit:]_]*
+andID \&[[:alpha:]_][[:alpha:][:digit:]_]*
+starID \*[[:alpha:]_][[:alpha:][:digit:]_]*
 
-EOL                 (\r\n|\n)
-WHITE               [\t ]
+EOL (\r\n|\n)
+WHITE [\t ]
 
-commentbegin        "/*"
-commentspace        [ \t]
-commentelement      [^ \t\n]
-commentnextline     \n
-commentend          "*/"
-ALTERcomment        "//"
-%x LONGCOMMENT
-%x SHORTCOMMENT
+commentblock "/*"
+commentspace [ \t]
+commentelement [^ \t\n]
+commentnextline \n
+commentend "*/"
+commentline "//"
+%x CBLOCK
+%x CLINE
 
 %%
 
-"true"  {
-            TreeNode *node = new TreeNode(NODE_BOOL);
-            node->bool_val = true;
-            yylval = node;
-            return TRUE;
-        }
+"true" {
+    TreeNode *node = new TreeNode(NODE_BOOL);
+    node->bool_val = true;
+    yylval = node;
+    return TRUE;
+}
 "false" {
-            TreeNode *node = new TreeNode(NODE_BOOL);
-            node->bool_val = false;
-            yylval = node;
-            return FALSE;
-        }
+    TreeNode *node = new TreeNode(NODE_BOOL);
+    node->bool_val = false;
+    yylval = node;
+    return FALSE;
+}
 
-"int"       return INT;
-"void"      return VOID;
-"char"      return CHAR;
-"string"    return STR;
+"int" return INT;
+"void" return VOID;
+"char" return CHAR;
+"string" return STR;
  
-"for"       return FOR;
-"if"        return IF;
-"while"     return WHILE;
-"else"      return ELSE;
-"struct"    return STRUCT;
+"for" return FOR;
+"if" return IF;
+"while" return WHILE;
+"else" return ELSE;
+"return" return RETURN;
 
-"printf"    return PRINTF;
-"scanf"     return SCANF;
+"printf" return PRINTF;
+"scanf" return SCANF;
 
-"const"     return CONST;
+"const" return CONST;
 
-"."         return dot;
-"="         return ASSIGN;
-"+="        return ADDASS;
-"-="        return MINASS;
-"*="        return MULASS;
-"/="        return DIVASS;
-"%="        return MODASS;
+"." return dot;
+"=" return ASSIGN;
+"+=" return ADE;
+"-=" return SUE;
+"*=" return MUE;
+"/=" return DIE;
+"%=" return MOE;
 
-"++"        return ANSC;
-"--"        return DESC;
-"+"         return ADD;
-"-"         return SUB;
-"*"         return MUL;
-"/"         return DIV;
-"%"         return MOD;
+"++" return ADO;
+"--" return SUO;
+"+" return ADD;
+"-" return SUB;
+"*" return MUL;
+"/" return DIV;
+"%" return MOD;
 
-"!"         return NOT;
-"&&"        return AND;
-"||"        return OR;
-"=="        return EQ;
-"!="        return NEQ;
-">"         return MORE;
-">="        return MORE_EQ;
-"<"         return LESS;
-"<="        return LESS_EQ;
+"!" return NOT;
+"&&" return AND;
+"||" return OR;
+"==" return EQUAL;
+"!=" return NEQUAL;
+">" return GT;
+">=" return GE;
+"<" return LT;
+"<=" return LE;
 
-","         return COMMA;
-";"         return SEMI;
-"("         return LPAREN;
-")"         return RPAREN;
-"["         return LBRACK;
-"]"         return RBRACK;
-
+"," return COMMA;
+";" return SEMICOLON;
+"(" return SLB;
+")" return SRB;
+"[" return MLB;
+"]" return MRB;
 "{" {
-        layers.push_back(layer(curlayer, lid++));
-        return LBRACE;
-    }
-
-"}"     return RBRACE;
+    layers.emplace_back(layer(work_layer, layerid++));
+    return LLB;
+}
+"}" return LRB;
 
 {INTEGER} {
-        TreeNode *node = new TreeNode(NODE_CONINT);
-        node->int_val = atoi(yytext);
-        node->varType = VAR_INTEGER;
-        yylval = node;
-        return INTEGER;
-    }   
-{INT8} {
-        TreeNode *node = new TreeNode(NODE_CONINT);
-        node->int_val = otoi(yytext);
-        node->varType = VAR_INTEGER;
-        yylval = node;
-        return INTEGER;
-    }
-{INT16} {
-        TreeNode *node = new TreeNode(NODE_CONINT);
-        node->int_val = htoi(yytext);
-        node->varType = VAR_INTEGER;
-        yylval = node;
-        return INTEGER;
-    }
+    TreeNode *node = new TreeNode(NODE_CONINT);
+    node->int_val = atoi(yytext);
+    node->varType = VAR_INTEGER;
+    yylval = node;
+    return INTEGER;
+}
 {CHARACTER} {
-        TreeNode *node = new TreeNode(NODE_CONCHAR);
-        node->int_val = int(string(yytext)[1]);
-        node->varType = VAR_CHAR;
-        yylval = node;
-        return CHARACTER;
-    }
+    TreeNode *node = new TreeNode(NODE_CONCHAR);
+    node->int_val = int(string(yytext)[1]);
+    node->varType = VAR_CHAR;
+    yylval = node;
+    return CHARACTER;
+}
 {STRING} {
-        TreeNode *node = new TreeNode(NODE_CONSTR);
-        string str = string(yytext);
-        str.erase(0,str.find_first_not_of("\""));
-        str.erase(str.find_last_not_of("\"") + 1);
-        node->str_val = str;
-        node->varType = VAR_STR;
-        yylval = node;
-        return STRING;
-    }
+    TreeNode *node = new TreeNode(NODE_CONSTR);
+    string str = string(yytext);
+    str.erase(0,str.find_first_not_of("\""));
+    str.erase(str.find_last_not_of("\"") + 1);
+    node->str_val = str;
+    node->varType = VAR_STR;
+    yylval = node;
+    return STRING;
+}
 {ID} {
-        TreeNode *node = new TreeNode(NODE_VAR);
-        node->varName = string(yytext);
-        vector<variable>::reverse_iterator it = curlayer.rbegin();
-        while(it != curlayer.rend())
+    TreeNode *node = new TreeNode(NODE_VAR);
+    node->varName = string(yytext);
+    vector<variable>::reverse_iterator it = work_layer.rbegin();
+    while(it != work_layer.rend())
+    {
+        if((*it).name == node->varName)
         {
-            if((*it).name == node->varName)
-            {
-                node->varType = (*it).type;
-                break;
-            }
-            it++;
+            node->varType = (*it).type;
+            break;
         }
-        yylval = node;
-        return ID;
+        it++;
     }
-{ID_ADDR} {
-        TreeNode *node = new TreeNode(NODE_VAR);
-        string str = string(yytext);
-        str.erase(str.begin());
-        node->varName = str;
-        node->varFlag = VAR_ADDRESS;
-        vector<variable>::reverse_iterator it = curlayer.rbegin();
-        while(it != curlayer.rend())
+    yylval = node;
+    return ID;
+}
+{andID} {
+    TreeNode *node = new TreeNode(NODE_VAR);
+    string str = string(yytext);
+    str.erase(str.begin());
+    node->varName = str;
+    node->varFlag = VAR_ADDRESS;
+    vector<variable>::reverse_iterator it = work_layer.rbegin();
+    while(it != work_layer.rend())
+    {
+        if((*it).name == node->varName)
         {
-            if((*it).name == node->varName)
-            {
-                node->varType = (*it).type;
-                break;
-            }
-            it++;
+            node->varType = (*it).type;
+            break;
         }
-        yylval = node;
-        return ID;
+        it++;
     }
-{ID_POINTER} {
-        TreeNode *node = new TreeNode(NODE_VAR);
-        string str = string(yytext);
-        str.erase(str.begin());
-        node->varName = str;
-        node->varFlag = VAR_POINTER;
-        vector<variable>::reverse_iterator it = curlayer.rbegin();
-        while(it != curlayer.rend())
+    yylval = node;
+    return ID;
+}
+{starID} {
+    TreeNode *node = new TreeNode(NODE_VAR);
+    string str = string(yytext);
+    str.erase(str.begin());
+    node->varName = str;
+    node->varFlag = VAR_POINTER;
+    vector<variable>::reverse_iterator it = work_layer.rbegin();
+    while(it != work_layer.rend())
+    {
+        if((*it).name == node->varName)
         {
-            if((*it).name == node->varName)
-            {
-                node->varType = (*it).type;
-                break;
-            }
-            it++;
+            node->varType = (*it).type;
+            break;
         }
-        yylval = node;
-        return ID;
+        it++;
     }
+    yylval = node;
+    return ID;
+}
 {EOL}
 {WHITE}
 
-{commentbegin} { BEGIN LONGCOMMENT; printf("# COMMENT BEGIN\t"); }
-<LONGCOMMENT>{commentelement} { if(!firstword) printf("#\t"); printf("%s", yytext); firstword = 1; }
-<LONGCOMMENT>{commentspace} { if(firstword) printf("%s", yytext); }
-<LONGCOMMENT>{commentnextline} { printf("\n"); firstword = 0; }
-<LONGCOMMENT>{commentend} { printf("# COMMENT END\n"); BEGIN INITIAL; }
+{commentblock} { BEGIN CBLOCK; printf("# CBLOCK BEGIN\t"); }
+<CBLOCK>{commentelement} { if(!firstword) printf("#\t"); printf("%s", yytext); firstword = 1; }
+<CBLOCK>{commentspace} { if(firstword) printf("%s", yytext); }
+<CBLOCK>{commentnextline} { printf("\n"); firstword = 0; }
+<CBLOCK>{commentend} { printf("# CBLOCK END\n"); BEGIN INITIAL; }
 
-{ALTERcomment} { BEGIN SHORTCOMMENT; printf("# COMMENT:"); }
-<SHORTCOMMENT>{commentelement} { printf("%s", yytext); }
-<SHORTCOMMENT>{commentspace} { printf("%s", yytext); }
-<SHORTCOMMENT>{commentnextline} { printf("\n"); BEGIN INITIAL; }
+{commentline} { BEGIN CLINE; printf("# CLINE START:"); }
+<CLINE>{commentelement} { printf("%s", yytext); }
+<CLINE>{commentspace} { printf("%s", yytext); }
+<CLINE>{commentnextline} { printf("\n"); BEGIN INITIAL; }
 %%
