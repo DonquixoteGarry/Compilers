@@ -8,13 +8,13 @@ int main() {
     char ch;
     scanf("%c", &ch);
     printf("%c\n",ch);
-    while(a>0 && a<=10 ||a%100==0) {
+    while(a>0 && a<10 ||a%100==0) {
         a -= 1;
 	printf("a is: %d\n", a);
         int a;
         a = 10;
         s += a;
-        if(1) {
+        if(s<120) {
             printf("result is: %d\n", s);
             int b;
             b = 10;

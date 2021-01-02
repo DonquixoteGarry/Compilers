@@ -15,9 +15,7 @@ public:
 class func_part{
 private:
     int funcType;
-    bool buf;
     vector<string> code;
-    vector<string> codebuf;
     string name;
     int ret;
 public:

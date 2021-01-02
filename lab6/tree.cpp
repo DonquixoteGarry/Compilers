@@ -212,7 +212,7 @@ void TreeNode::printAST()
     default:
         break;
     }
-    fprintf(p,"# %d\t%s\t%s\tchild:", this->nodeIndex, NType.c_str(), value.c_str());
+    fprintf(p,"# %d\t\t%s\t%s\tchild:", this->nodeIndex, NType.c_str(), value.c_str());
     int havechild = 0;
     for (int i = 0; i < this->CHILDREN.size(); i++)
     {
