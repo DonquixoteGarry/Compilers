@@ -5,14 +5,15 @@ using std::cout;
 using std::endl;
 TreeNode *root=nullptr;
 vector<layer> layers;
-vector<variable> work_layer;
+vector<var> work_layer;
 roda_part ro_data;
 func_part func_code(-1, "");
 int layerid = 0;
 int main ()
 {
     yyparse();
-    if(root){
+    if(root)
+    {
         root->getNodeID();
         root->printAST();
     }

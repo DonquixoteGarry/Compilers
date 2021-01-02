@@ -6,7 +6,7 @@
     int yylex();
     int yyerror( char const * );
     extern vector<layer> layers;
-    extern vector<variable> work_layer;
+    extern vector<var> work_layer;
     extern int layerid;
     extern roda_part ro_data;
     extern func_part func_code;
@@ -24,7 +24,7 @@
     int whilectr = 0;
     int forctr = 0;
     int bool_breaker = 0;
-    vector<tmpvariable> tmpfor;
+    vector<temp_var> tmpfor;
     int forlevel = 0;
 %}
 %defines
@@ -78,7 +78,7 @@ statement: instruction
     | for {$$=$1;}
     | LLB statements LRB {
         $$=$2;    
-        vector<variable> var = layers[layers.size()-1].varies;
+        vector<var> var = layers[layers.size()-1].var_list;
         while(work_layer.size()!=var.size())
         {
             if(work_layer[work_layer.size()-1].type != 4) func_code.addCode("\taddl\t$4, %esp\n");
@@ -540,10 +540,10 @@ instruction: type params SEMICOLON
         int vtype = $1->varType;
         $$=node;
         int praseErr_flag = 0;
-        vector<variable> temp;
+        vector<var> temp;
         if(!layers.empty())
         {
-            temp = layers[layers.size()-1].varies;
+            temp = layers[layers.size()-1].var_list;
         }
         for(int i = 1;i < node->childNum();i++)
         {
@@ -557,7 +557,7 @@ instruction: type params SEMICOLON
             {
                 if(work_layer[j].name == (child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName))
                 {
-                    printf("Error : variable wrong\n");
+                    printf("Error : var wrong\n");
                     layer(work_layer, layerid).output();
                     praseErr_flag = 1;
                     break;
@@ -572,17 +572,17 @@ instruction: type params SEMICOLON
                         printf("Error : string wrong\n");
                         exit(1);
                     }
-                    work_layer.emplace_back(variable(child->getChild(0)->varName, ro_data.size()));
+                    work_layer.emplace_back(var(child->getChild(0)->varName, ro_data.size()));
                     ro_data.emplace_back(child->getChild(1)->str_val);
-                    if(for_flag_begin) tmpfor.emplace_back(tmpvariable(variable(child->getChild(0)->varName, ro_data.size()), forlevel));
+                    if(for_flag_begin) tmpfor.emplace_back(temp_var(var(child->getChild(0)->varName, ro_data.size()), forlevel));
                     goto EA;
                 }
-                work_layer.emplace_back(variable($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
+                work_layer.emplace_back(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
                 for(int j = 0;j < child->dim.size();j++)
                 {
                     work_layer[work_layer.size()-1].dim.emplace_back(child->dim[j]);
                 }
-                if(for_flag_begin) tmpfor.emplace_back(tmpvariable(variable($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
+                if(for_flag_begin) tmpfor.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
             }
             EA:
                 praseErr_flag = 0;
@@ -613,10 +613,10 @@ instruction: type params SEMICOLON
         node->addChild($3);
         $$=node;
         int praseErr_flag = 0;
-        vector<variable> temp;
+        vector<var> temp;
         if(!layers.empty())
         {
-            temp = layers[layers.size()-1].varies;
+            temp = layers[layers.size()-1].var_list;
         }
         for(int i = 1;i < node->childNum();i++)
         {
@@ -625,7 +625,7 @@ instruction: type params SEMICOLON
             {
                 if(work_layer[j].name == (child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName))
                 {
-                    printf("Error : variable wrong\n");
+                    printf("Error : var wrong\n");
                     layer(work_layer, layerid).output();
                     praseErr_flag = 1;
                     break;
@@ -633,12 +633,12 @@ instruction: type params SEMICOLON
             }
             if(!praseErr_flag)
             {
-                work_layer.emplace_back(variable($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
+                work_layer.emplace_back(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
                 for(int j = 0;j < child->dim.size();j++)
                 {
                     work_layer[work_layer.size()-1].dim.emplace_back(child->dim[j]);
                 }
-                if(for_flag_begin) tmpfor.emplace_back(tmpvariable(variable($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
+                if(for_flag_begin) tmpfor.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
             }
             praseErr_flag = 0;
         }
@@ -1264,7 +1264,7 @@ bool_expr: TRUE
 expr: _ID 
     {
         $$=$1;
-        vector<variable>::reverse_iterator it = work_layer.rbegin();
+        vector<var>::reverse_iterator it = work_layer.rbegin();
         int i = 0;
         while(it != work_layer.rend())
         {
@@ -1569,7 +1569,7 @@ _ID: ID
         $$=$1;
         if($$->int_val == -1)
         {
-            vector<variable>::reverse_iterator it = work_layer.rbegin();
+            vector<var>::reverse_iterator it = work_layer.rbegin();
             int i = 0;
             while(it != work_layer.rend())
             {

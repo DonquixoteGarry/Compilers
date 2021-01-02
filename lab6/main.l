@@ -4,7 +4,7 @@
     #include"main.tab.hh"
     int firstword = 0;
     extern vector<layer> layers;//作用域向量
-    extern vector<variable> work_layer;//当前作用域的变量表
+    extern vector<var> work_layer;//当前作用域的变量表
     
     extern int layerid;
     
@@ -125,7 +125,7 @@ commentline "//"
 {ID} {
     TreeNode *node = new TreeNode(NODE_VAR);
     node->varName = string(yytext);
-    vector<variable>::reverse_iterator it = work_layer.rbegin();
+    vector<var>::reverse_iterator it = work_layer.rbegin();
     while(it != work_layer.rend())
     {
         if((*it).name == node->varName)
@@ -144,7 +144,7 @@ commentline "//"
     str.erase(str.begin());
     node->varName = str;
     node->varFlag = VAR_ADDRESS;
-    vector<variable>::reverse_iterator it = work_layer.rbegin();
+    vector<var>::reverse_iterator it = work_layer.rbegin();
     while(it != work_layer.rend())
     {
         if((*it).name == node->varName)
@@ -163,7 +163,7 @@ commentline "//"
     str.erase(str.begin());
     node->varName = str;
     node->varFlag = VAR_POINTER;
-    vector<variable>::reverse_iterator it = work_layer.rbegin();
+    vector<var>::reverse_iterator it = work_layer.rbegin();
     while(it != work_layer.rend())
     {
         if((*it).name == node->varName)

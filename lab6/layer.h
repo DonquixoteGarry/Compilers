@@ -2,61 +2,61 @@
 #include<string>
 #include<vector>
 using namespace std;
-class variable
+class var
 {
 public:
     int type;
     string name;
     int ro_index;
     vector<int> dim;
-    variable()
+    var()
     {
         this->type = 0;
         this->name = "";
     }
-    variable(const variable& v)
+    var(const var& v)
     {
         this->type = v.type;
         this->name = v.name;
     }
-    variable(int type, string name)
+    var(int type, string name)
     {
         this->type = type;
         this->name = name;
     }
-    variable(string name, int ro_index)
+    var(string name, int ro_index)
     {
         this->type = 4;
         this->ro_index = ro_index;
         this->name = name;
     }
 };
-class tmpvariable
+class temp_var
 {
 public:
-    variable v;
+    var v;
     int l;
-    tmpvariable(variable v, int l)
+    temp_var(var v, int l)
     {
-        this->v = variable(v.type, v.name);
+        this->v = var(v.type, v.name);
         this->l = l;
     }
 };
 class layer
 {
 public:
-    vector<variable> varies;
+    vector<var> var_list;
     int index;
     void output()
     {
-        for(int i = 0;i < varies.size();i++)
+        for(int i = 0;i < var_list.size();i++)
         {
-            printf("%s  %d\n", varies[i].name.c_str(), index);
+            printf("%s  %d\n", var_list[i].name.c_str(), index);
         }
     }
-    layer(vector<variable> varies, int index)
+    layer(vector<var> var_list, int index)
     {
-        this->varies = varies;
+        this->var_list = var_list;
         this->index = index;
     }
 };
