@@ -5,27 +5,27 @@
     extern TreeNode * root;
     int yylex();
     int yyerror( char const * );
+
     extern vector<layer> layers;
     extern vector<var> work_layer;
     extern int layerid;
-    extern rodata_part ro_data;
+    extern rodata_part rodata_code;
     extern func_part func_code;
+    
     int temp_dec_size = 1;
-    bool declear_flag = 0;
-    bool scanflag = 0;
-    vector<string> whilecode;
-    vector<string> forcode;
-    bool while_flag = 0;
-    bool for_flag_begin = 0;
-    bool for_flag_expr3 = 0;
+    vector<string> while_stmt_code,for_stmt_code;
+    
+    bool declear_flag = 0,scan_flag = 0,while_flag = 0;
+    bool for_flag = 0,for_flag_expr3 = 0;
+    
     int curlabel;
     vector<int> label;
     int if_lev = 0;
     int whilectr = 0;
     int forctr = 0;
-    int bool_breaker = 0;
-    vector<temp_var> tmpfor;
-    int forlevel = 0;
+    int if_asm_order = 0; //if汇编语句块编号
+    vector<temp_var> for_temp_varlist;
+    int for_stmt_level = 0;
 %}
 %defines
 
@@ -37,18 +37,18 @@
 %token INT VOID CHAR STR
 %token SLB SRB MLB MRB LLB LRB COMMA SEMICOLON
 %token TRUE FALSE
-%token ADD SUB MUL DIV MOD ADO SUO NEG POS
-%token ASSIGN ADE SUE MUE DIE MOE
-%token EQUAL NEQUAL GT GE LT LE NOT AND OR
+%token ADD SUB MUL DIV MOD ANSC DESC NEG POS
+%token ASSIGN ADD_ASS SUB_ASS MUL_ASS DIV_ASS MOD_ASS
+%token EQ NEQ GT GE LT LE NOT AND OR
 %token PRINTF SCANF
 %token dot
 
-%right ASSIGN ADE SUE MUE DIE MOE
-%right ADO SUO
+%right ASSIGN ADD_ASS SUB_ASS MUL_ASS DIV_ASS MOD_ASS
+%right ANSC DESC
 %right OR
 %left ADD SUB
 %left MUL DIV MOD
-%left EQUAL NEQUAL GT GE LT LE
+%left EQ NEQ GT GE LT LE
 %right AND
 %right NOT
 %right NEG 
@@ -60,7 +60,7 @@ program: statements
         root=new TreeNode(NODE_PROG);
         root->addChild($1);
         printf("\n\t.text\n\t.section\t.rodata\n");
-        ro_data.output();
+        rodata_code.output();
         func_code.output();
         printf("\t.section\t.note.GNU-stack,\"\",@progbits\n\n");
     }
@@ -115,13 +115,13 @@ assign: _ID ASSIGN expr
             offset = to_string(-(4*$1->int_val));
         func_code.addCode("\tpopl\t%eax\n");
         func_code.addCode("\tmovl\t%eax, " + offset + "(%ebp)\n");
-        if(for_flag_begin){func_code.addCode("FBG"+to_string(forctr)+":\n");}
+        if(for_flag){func_code.addCode("FBG"+to_string(forctr)+":\n");}
         if(declear_flag) func_code.addCode("\tsubl\t$4, %esp\n");
        
     STREND:
         $$=node;
     }
-    | _ID ADE expr{
+    | _ID ADD_ASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_ADD;
         node->addChild($1);
@@ -133,8 +133,8 @@ assign: _ID ASSIGN expr
         }
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\taddl\t%ebx,-"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\taddl\t%ebx,-"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else
         {
@@ -143,7 +143,7 @@ assign: _ID ASSIGN expr
         }
         $$=node;
     }
-    | _ID SUE expr{
+    | _ID SUB_ASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_MINUS;
         node->addChild($1);
@@ -155,8 +155,8 @@ assign: _ID ASSIGN expr
         }
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tsubl\t%ebx,-"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tsubl\t%ebx,-"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else{
             func_code.addCode("\tpopl\t%ebx\n");
@@ -165,7 +165,7 @@ assign: _ID ASSIGN expr
         $$=node;
         
     }
-    | _ID MUE expr{
+    | _ID MUL_ASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_MULTI;
         node->addChild($1);
@@ -177,10 +177,10 @@ assign: _ID ASSIGN expr
         }
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tmovl\t-" + to_string(4*$1->int_val) + "(%ebp), %eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tmovl\t%eax, -"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t-" + to_string(4*$1->int_val) + "(%ebp), %eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t%eax, -"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else{
             func_code.addCode("\tpopl\t%ebx\n");
@@ -190,7 +190,7 @@ assign: _ID ASSIGN expr
         }
         $$=node;
     }
-    | _ID DIE expr{
+    | _ID DIV_ASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_DIV;
         node->addChild($1);
@@ -202,11 +202,11 @@ assign: _ID ASSIGN expr
         }
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tmovl\t-" + to_string(4*$1->int_val) + "(%ebp), %eax\n");
-            forcode.emplace_back("\tcltd\n");
-            forcode.emplace_back("\tidivl\t%ebx\n");
-            forcode.emplace_back("\tmovl\t%eax, -"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t-" + to_string(4*$1->int_val) + "(%ebp), %eax\n");
+            for_stmt_code.emplace_back("\tcltd\n");
+            for_stmt_code.emplace_back("\tidivl\t%ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t%eax, -"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else{
             func_code.addCode("\tpopl\t%ebx\n");
@@ -217,7 +217,7 @@ assign: _ID ASSIGN expr
         }
         $$=node;
     }
-    | _ID MOE expr{
+    | _ID MOD_ASS expr{
         TreeNode* node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_MOD;
         node->addChild($1);
@@ -229,11 +229,11 @@ assign: _ID ASSIGN expr
         }
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tmovl\t-" + to_string(4*$1->int_val) + "(%ebp), %eax\n");
-            forcode.emplace_back("\tcltd\n");
-            forcode.emplace_back("\tidivl\t%ebx\n");
-            forcode.emplace_back("\tmovl\t%edx, -"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t-" + to_string(4*$1->int_val) + "(%ebp), %eax\n");
+            for_stmt_code.emplace_back("\tcltd\n");
+            for_stmt_code.emplace_back("\tidivl\t%ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t%edx, -"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else{
             func_code.addCode("\tpopl\t%ebx\n");
@@ -244,30 +244,30 @@ assign: _ID ASSIGN expr
         }
         $$=node;
     }
-    | _ID ADO {
+    | _ID ANSC {
         TreeNode *node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_SADD;
         node->addChild($1);
         $$=node; 
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\taddl\t$1,-"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\taddl\t$1,-"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else{
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\taddl\t$1,-"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
     }
-    | _ID SUO {
+    | _ID DESC {
         TreeNode *node=new TreeNode(NODE_ASSIGN);
         node->opType=OP_SMIN;
         node->addChild($1);
         $$=node; 
         if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tsubl\t$1,-"+to_string(4*$1->int_val)+"(%ebp)\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tsubl\t$1,-"+to_string(4*$1->int_val)+"(%ebp)\n");
         }
         else
         {
@@ -285,7 +285,7 @@ params: _ID
         else
             index = to_string(4*$1->int_val);
         func_code.addCode("\tmovl\t$0, -"+index+"(%ebp)\n"); 
-        if(for_flag_begin){func_code.addCode("FBG"+to_string(forctr)+":\n");}
+        if(for_flag){func_code.addCode("FBG"+to_string(forctr)+":\n");}
         if(declear_flag) func_code.addCode("\tsubl\t$4, %esp\n");
         
         
@@ -300,7 +300,7 @@ params: _ID
         else
             index = to_string(4*$3->int_val);
         func_code.addCode("\tmovl\t$0, -"+index+"(%ebp)\n"); 
-        if(for_flag_begin){func_code.addCode("FBG"+to_string(forctr)+":\n");}
+        if(for_flag){func_code.addCode("FBG"+to_string(forctr)+":\n");}
         if(declear_flag) func_code.addCode("\tsubl\t$4, %esp\n");
         
     }
@@ -391,11 +391,11 @@ while_condi: _while bool_statment
         node->int_val=whilectr;
         node->addChild($2);
         func_code.addCode("WBG"+to_string(whilectr)+":\n");
-        for(int i = 0;i < whilecode.size();i++)
+        for(int i = 0;i < while_stmt_code.size();i++)
         {
-            func_code.addCode(whilecode[i]);
+            func_code.addCode(while_stmt_code[i]);
         }
-        whilecode.clear();
+        while_stmt_code.clear();
         func_code.addCode("\tpopl\t%eax\n");
         func_code.addCode("\tcmpl\t$1, %eax\n");
         func_code.addCode("\tjne\tWED"+to_string(whilectr++)+"\n");
@@ -421,18 +421,18 @@ for: _for for_condi statement
         node->addChild($2);
         node->addChild($3);
         $$=node;
-        while(tmpfor[tmpfor.size()-1].l == forlevel)
+        while(for_temp_varlist[for_temp_varlist.size()-1].l == for_stmt_level)
         {
             work_layer.pop_back();
-            tmpfor.pop_back();
+            for_temp_varlist.pop_back();
         }
-        forlevel--;
+        for_stmt_level--;
 
-        for(int i = 0;i < forcode.size();i++)
+        for(int i = 0;i < for_stmt_code.size();i++)
         {
-            func_code.addCode(forcode[i]);
+            func_code.addCode(for_stmt_code[i]);
         }
-        forcode.clear();
+        for_stmt_code.clear();
         func_code.addCode("\tjmp\tFBG"+to_string($2->getChild(0)->int_val)+"\n");
         func_code.addCode("FED"+to_string($2->getChild(0)->int_val)+":\n");
     
@@ -441,7 +441,7 @@ for: _for for_condi statement
 _for: FOR
     {
         $$=$1;
-        for_flag_begin = 1;
+        for_flag = 1;
         for_flag_expr3 = 0;
     }
     ;
@@ -460,11 +460,11 @@ for_expr12: SLB instruction bool_expr SEMICOLON
         node->int_val = forctr;
         node->addChild($2);
         node->addChild($3);
-        for(int i = 0;i < forcode.size();i++)
+        for(int i = 0;i < for_stmt_code.size();i++)
         {
-            func_code.addCode(forcode[i]);
+            func_code.addCode(for_stmt_code[i]);
         }
-        forcode.clear();
+        for_stmt_code.clear();
         func_code.addCode("\tpopl\t%eax\n");
         func_code.addCode("\tcmpl\t$1, %eax\n");
         func_code.addCode("\tjne\tFED"+to_string(forctr)+"\n");
@@ -479,7 +479,7 @@ for_expr3: assign SRB
         node->addChild($1);
         for_flag_expr3 = 0;
         $$ = node;
-        forlevel++;
+        for_stmt_level++;
     }
     ;    
 return_stmt: RETURN expr SEMICOLON{
@@ -487,21 +487,21 @@ return_stmt: RETURN expr SEMICOLON{
         {
             for(int i=0;i<work_layer.size();i++)
             {
-                whilecode.emplace_back("\taddl\t$4,%esp\n");
+                while_stmt_code.emplace_back("\taddl\t$4,%esp\n");
             }
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebp\n");
-            whilecode.emplace_back("\tret\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebp\n");
+            while_stmt_code.emplace_back("\tret\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
             for(int i=0;i<work_layer.size();i++)
             {
-                forcode.emplace_back("\taddl\t$4,%esp\n");
+                for_stmt_code.emplace_back("\taddl\t$4,%esp\n");
             }
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebp\n");
-            forcode.emplace_back("\tret\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebp\n");
+            for_stmt_code.emplace_back("\tret\n");
         }
         else
         {
@@ -522,12 +522,12 @@ bool_statment: SLB bool_expr SRB
         func_code.addCode("\tpopl\t%eax\n");
         func_code.addCode("\tmovl\t$0, %ebx\n");
         func_code.addCode("\tcmpl\t%ebx, %eax\n");
-        func_code.addCode("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
+        func_code.addCode("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
         func_code.addCode("\tpushl\t$0\n");
-        func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-        func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+        func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+        func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
         func_code.addCode("\tpushl\t$1\n");
-        func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+        func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         $$ = $2;
     }
     ;
@@ -572,19 +572,19 @@ instruction: type params SEMICOLON
                         printf("Error : string wrong\n");
                         exit(1);
                     }
-                    work_layer.emplace_back(var(child->getChild(0)->varName, ro_data.size()));
-                    ro_data.emplace_back(child->getChild(1)->str_val);
-                    if(for_flag_begin) tmpfor.emplace_back(temp_var(var(child->getChild(0)->varName, ro_data.size()), forlevel));
+                    work_layer.emplace_back(var(child->getChild(0)->varName, rodata_code.size()));
+                    rodata_code.emplace_back(child->getChild(1)->str_val);
+                    if(for_flag) for_temp_varlist.emplace_back(temp_var(var(child->getChild(0)->varName, rodata_code.size()), for_stmt_level));
                     goto EA;
                 }
                 work_layer.emplace_back(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
-                if(for_flag_begin) tmpfor.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
+                if(for_flag) for_temp_varlist.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), for_stmt_level));
             }
             EA:
                 praseErr_flag = 0;
         }
         declear_flag = 0;
-        for_flag_begin = 0;
+        for_flag = 0;
         temp_dec_size = work_layer.size() + 1;
     }
     | params SEMICOLON {
@@ -630,11 +630,11 @@ instruction: type params SEMICOLON
             if(!praseErr_flag)
             {
                 work_layer.emplace_back(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName));
-                if(for_flag_begin) tmpfor.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), forlevel));
+                if(for_flag) for_temp_varlist.emplace_back(temp_var(var($1->varType, child->nodeType==NODE_ASSIGN?child->getChild(0)->varName:child->varName), for_stmt_level));
             }
             praseErr_flag = 0;
         }
-        for_flag_begin = 0;
+        for_flag = 0;
         
     }
     ;
@@ -644,7 +644,7 @@ printf: PRINTF SLB STRING COMMA args SRB
         node->stmtType=STMT_PRINTF;
         node->addChild($3);
         node->addChild($5);
-        ro_data.emplace_back($3->str_val);
+        rodata_code.emplace_back($3->str_val);
         vector<int> q;
         string str = $3->str_val;
         for(int i = 0;i < str.length();i++)
@@ -694,7 +694,7 @@ printf: PRINTF SLB STRING COMMA args SRB
             func_code.addCode(tmpv[i]);
         }
         func_code.addCode("\tsubl\t$"+to_string(work_layer.size()*4)+", %ebp\n");
-        func_code.addCode("\tpushl\t$STR"+to_string(ro_data.size()-1)+"\n");
+        func_code.addCode("\tpushl\t$STR"+to_string(rodata_code.size()-1)+"\n");
         func_code.addCode("\tcall\tprintf\n");
         func_code.addCode("\taddl\t$"+to_string(work_layer.size()*4)+", %ebp\n");
         func_code.addCode("\taddl\t$"+to_string(q.size()*4+4)+", %esp\n");
@@ -704,9 +704,9 @@ printf: PRINTF SLB STRING COMMA args SRB
         TreeNode *node=new TreeNode(NODE_STMT);
         node->stmtType=STMT_PRINTF;
         node->addChild($3);
-        ro_data.emplace_back($3->str_val);
+        rodata_code.emplace_back($3->str_val);
         func_code.addCode("\tsubl\t$"+to_string(work_layer.size()*4)+", %ebp\n");
-        func_code.addCode("\tpushl\t$STR"+to_string(ro_data.size()-1)+"\n");
+        func_code.addCode("\tpushl\t$STR"+to_string(rodata_code.size()-1)+"\n");
         func_code.addCode("\tcall\tprintf\n");
         func_code.addCode("\taddl\t$"+to_string(work_layer.size()*4)+", %ebp\n");
         func_code.addCode("\taddl\t$4, %esp\n");
@@ -715,7 +715,7 @@ printf: PRINTF SLB STRING COMMA args SRB
     ;
 _SCANF: SCANF
     {
-        scanflag = 1;
+        scan_flag = 1;
     }
     ;
 scanf: _SCANF SLB STRING COMMA args SRB
@@ -724,7 +724,7 @@ scanf: _SCANF SLB STRING COMMA args SRB
         node->stmtType=STMT_SCANF;
         node->addChild($3);
         node->addChild($5);
-        ro_data.emplace_back($3->str_val);
+        rodata_code.emplace_back($3->str_val);
         vector<int> q;
         string str = $3->str_val;
         for(int i = 0;i < str.length();i++)
@@ -777,12 +777,12 @@ scanf: _SCANF SLB STRING COMMA args SRB
             func_code.addCode("\tpushl\t%eax\n");
         }
         func_code.addCode("\tsubl\t$"+to_string(work_layer.size()*4)+", %ebp\n");
-        func_code.addCode("\tpushl\t$STR"+to_string(ro_data.size()-1)+"\n");
+        func_code.addCode("\tpushl\t$STR"+to_string(rodata_code.size()-1)+"\n");
         func_code.addCode("\tcall\tscanf\n");
         func_code.addCode("\taddl\t$"+to_string(work_layer.size()*4)+", %ebp\n");
         func_code.addCode("\taddl\t$"+to_string(q.size()*4+4)+", %esp\n");
         $$=node;
-        scanflag = 0;
+        scan_flag = 0;
     }
     ;
 bool_expr: TRUE
@@ -791,11 +791,11 @@ bool_expr: TRUE
         $$->varType = VAR_BOOLEAN; 
         if(while_flag)
         {
-            whilecode.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
         }
         else
         {
@@ -807,18 +807,18 @@ bool_expr: TRUE
         $$->varType = VAR_BOOLEAN; 
         if(while_flag)
         {
-            whilecode.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
         }
         else
         {
             func_code.addCode("\tpushl\t$0\n");
         }
     }
-    | expr EQUAL expr {
+    | expr EQ expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_EQ;
         node->addChild($1);
@@ -831,43 +831,43 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            forcode.emplace_back("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
             func_code.addCode("\tpopl\t%eax\n");
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\tcmpl\t%eax, %ebx\n");
-            func_code.addCode("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         $$=node;
     }
-    | expr NEQUAL expr {
+    | expr NEQ expr {
         TreeNode *node=new TreeNode(NODE_OP);
         node->opType=OP_NE;
         node->addChild($1);
@@ -880,39 +880,39 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tje\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tje\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            forcode.emplace_back("\tje\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tje\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
             func_code.addCode("\tpopl\t%eax\n");
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\tcmpl\t%eax, %ebx\n");
-            func_code.addCode("\tje\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tje\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         $$=node;
     }
@@ -930,39 +930,39 @@ bool_expr: TRUE
         $$=node;
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tjle\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tjle\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            forcode.emplace_back("\tjle\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tjle\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
             func_code.addCode("\tpopl\t%eax\n");
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\tcmpl\t%eax, %ebx\n");
-            func_code.addCode("\tjle\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tjle\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
     }
     | expr GE expr {
@@ -979,39 +979,39 @@ bool_expr: TRUE
         $$=node;
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tjl\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tjl\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            forcode.emplace_back("\tjl\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tjl\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
             func_code.addCode("\tpopl\t%eax\n");
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\tcmpl\t%eax, %ebx\n");
-            func_code.addCode("\tjl\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tjl\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
     }
     | expr LT expr {
@@ -1027,39 +1027,39 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tjge\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tjge\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            forcode.emplace_back("\tjge\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tjge\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
             func_code.addCode("\tpopl\t%eax\n");
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\tcmpl\t%eax, %ebx\n");
-            func_code.addCode("\tjge\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tjge\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         $$=node;
     }
@@ -1076,39 +1076,39 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tjg\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tjg\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tcmpl\t%eax, %ebx\n");
-            forcode.emplace_back("\tjg\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tcmpl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tjg\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
             func_code.addCode("\tpopl\t%eax\n");
             func_code.addCode("\tpopl\t%ebx\n");
             func_code.addCode("\tcmpl\t%eax, %ebx\n");
-            func_code.addCode("\tjg\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tjg\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         $$=node;
     }
@@ -1125,31 +1125,31 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\taddl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tmovl\t$2, %eax\n");
-            whilecode.emplace_back("\tcmpl\t%ebx, %eax\n");
-            whilecode.emplace_back("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\taddl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tmovl\t$2, %eax\n");
+            while_stmt_code.emplace_back("\tcmpl\t%ebx, %eax\n");
+            while_stmt_code.emplace_back("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-        else if(for_flag_begin)
+        else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\taddl\t%eax, %ebx\n");
-            forcode.emplace_back("\tmovl\t$2, %eax\n");
-            forcode.emplace_back("\tcmpl\t%ebx, %eax\n");
-            forcode.emplace_back("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\taddl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t$2, %eax\n");
+            for_stmt_code.emplace_back("\tcmpl\t%ebx, %eax\n");
+            for_stmt_code.emplace_back("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
@@ -1158,12 +1158,12 @@ bool_expr: TRUE
             func_code.addCode("\taddl\t%eax, %ebx\n");
             func_code.addCode("\tmovl\t$2, %eax\n");
             func_code.addCode("\tcmpl\t%ebx, %eax\n");
-            func_code.addCode("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         $$=node;
     }
@@ -1180,31 +1180,31 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\taddl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tmovl\t$0, %eax\n");
-            whilecode.emplace_back("\tcmpl\t%ebx, %eax\n");
-            whilecode.emplace_back("\tje\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("\tpushl\t$1\n");
-            whilecode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            whilecode.emplace_back("\tpushl\t$0\n");
-            whilecode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\taddl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tmovl\t$0, %eax\n");
+            while_stmt_code.emplace_back("\tcmpl\t%ebx, %eax\n");
+            while_stmt_code.emplace_back("\tje\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$1\n");
+            while_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            while_stmt_code.emplace_back("\tpushl\t$0\n");
+            while_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
-         else if(for_flag_begin)
+         else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\taddl\t%eax, %ebx\n");
-            forcode.emplace_back("\tmovl\t$0, %eax\n");
-            forcode.emplace_back("\tcmpl\t%ebx, %eax\n");
-            forcode.emplace_back("\tjne\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("\tpushl\t$1\n");
-            forcode.emplace_back("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-2) + ":\n");
-            forcode.emplace_back("\tpushl\t$0\n");
-            forcode.emplace_back("IFL" + to_string(bool_breaker-1) + ":\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\taddl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tmovl\t$0, %eax\n");
+            for_stmt_code.emplace_back("\tcmpl\t%ebx, %eax\n");
+            for_stmt_code.emplace_back("\tjne\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$1\n");
+            for_stmt_code.emplace_back("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-2) + ":\n");
+            for_stmt_code.emplace_back("\tpushl\t$0\n");
+            for_stmt_code.emplace_back("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         else
         {
@@ -1213,12 +1213,12 @@ bool_expr: TRUE
             func_code.addCode("\taddl\t%eax, %ebx\n");
             func_code.addCode("\tmovl\t$0, %eax\n");
             func_code.addCode("\tcmpl\t%ebx, %eax\n");
-            func_code.addCode("\tje\tIFL" + to_string(bool_breaker++) + "\n");
+            func_code.addCode("\tje\tIFL" + to_string(if_asm_order++) + "\n");
             func_code.addCode("\tpushl\t$1\n");
-            func_code.addCode("\tjmp\tIFL" + to_string(bool_breaker++) + "\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-2) + ":\n");
+            func_code.addCode("\tjmp\tIFL" + to_string(if_asm_order++) + "\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-2) + ":\n");
             func_code.addCode("\tpushl\t$0\n");
-            func_code.addCode("IFL" + to_string(bool_breaker-1) + ":\n");
+            func_code.addCode("IFL" + to_string(if_asm_order-1) + ":\n");
         }
         $$=node;
     }
@@ -1234,15 +1234,15 @@ bool_expr: TRUE
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tsubl\t$1, %eax\n");
-            whilecode.emplace_back("\tpushl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tsubl\t$1, %eax\n");
+            while_stmt_code.emplace_back("\tpushl\t%eax\n");
         }
-         else if(for_flag_begin)
+         else if(for_flag)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tsubl\t$1, %eax\n");
-            forcode.emplace_back("\tpushl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tsubl\t$1, %eax\n");
+            for_stmt_code.emplace_back("\tpushl\t%eax\n");
         }
         else
         {
@@ -1256,11 +1256,11 @@ bool_expr: TRUE
 expr: _ID 
     {
         $$=$1;
-        vector<var>::reverse_iterator it = work_layer.rbegin();
+        vector<var>::reverse_iterator curr_var = work_layer.rbegin();
         int i = 0;
-        while(it != work_layer.rend())
+        while(curr_var != work_layer.rend())
         {
-            if((*it).name == $$->varName)
+            if((*curr_var).name == $$->varName)
             {
                 string code = "\tpushl\t";
                 if($$->varType == VAR_STR)
@@ -1269,11 +1269,11 @@ expr: _ID
                     code += "-" + to_string(4*(work_layer.size()-i)) + "(%ebp)\n";
                 if(while_flag)
                 {
-                    whilecode.emplace_back(code);
+                    while_stmt_code.emplace_back(code);
                 }
                 else if(for_flag_expr3)
                 {
-                    forcode.emplace_back(code);
+                    for_stmt_code.emplace_back(code);
                 }
                 else
                 {
@@ -1281,7 +1281,7 @@ expr: _ID
                 }
                 break;
             }
-            it++;
+            curr_var++;
             i++;
         }
     }
@@ -1289,11 +1289,11 @@ expr: _ID
         $$=$1;
         if(while_flag)
         {
-            whilecode.emplace_back("\tpushl\t$" + to_string($$->int_val) + "\n");
+            while_stmt_code.emplace_back("\tpushl\t$" + to_string($$->int_val) + "\n");
         }
         else if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpushl\t$" + to_string($$->int_val) + "\n");
+            for_stmt_code.emplace_back("\tpushl\t$" + to_string($$->int_val) + "\n");
         }
         else
         {
@@ -1315,17 +1315,17 @@ expr: _ID
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\taddl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tpushl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\taddl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tpushl\t%ebx\n");
         }
         else if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\taddl\t%eax, %ebx\n");
-            forcode.emplace_back("\tpushl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\taddl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tpushl\t%ebx\n");
         }
         else
         {
@@ -1349,17 +1349,17 @@ expr: _ID
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tsubl\t%eax, %ebx\n");
-            whilecode.emplace_back("\tpushl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tsubl\t%eax, %ebx\n");
+            while_stmt_code.emplace_back("\tpushl\t%ebx\n");
         }
         else if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tsubl\t%eax, %ebx\n");
-            forcode.emplace_back("\tpushl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tsubl\t%eax, %ebx\n");
+            for_stmt_code.emplace_back("\tpushl\t%ebx\n");
         }
         else
         {
@@ -1383,17 +1383,17 @@ expr: _ID
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\timull\t%ebx\n");
-            whilecode.emplace_back("\tpushl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\timull\t%ebx\n");
+            while_stmt_code.emplace_back("\tpushl\t%eax\n");
         }
         else if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\timull\t%ebx\n");
-            forcode.emplace_back("\tpushl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\timull\t%ebx\n");
+            for_stmt_code.emplace_back("\tpushl\t%eax\n");
         }
         else
         {
@@ -1417,19 +1417,19 @@ expr: _ID
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tcltd\n");
-            whilecode.emplace_back("\tidivl\t%ebx\n");
-            whilecode.emplace_back("\tpushl\t%eax\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tcltd\n");
+            while_stmt_code.emplace_back("\tidivl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpushl\t%eax\n");
         }
         else if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tcltd\n");
-            forcode.emplace_back("\tidivl\t%ebx\n");
-            forcode.emplace_back("\tpushl\t%eax\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tcltd\n");
+            for_stmt_code.emplace_back("\tidivl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpushl\t%eax\n");
         }
         else
         {
@@ -1455,19 +1455,19 @@ expr: _ID
         }
         if(while_flag)
         {
-            whilecode.emplace_back("\tpopl\t%ebx\n");
-            whilecode.emplace_back("\tpopl\t%eax\n");
-            whilecode.emplace_back("\tcltd\n");
-            whilecode.emplace_back("\tidivl\t%ebx\n");
-            whilecode.emplace_back("\tpushl\t%edx\n");
+            while_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpopl\t%eax\n");
+            while_stmt_code.emplace_back("\tcltd\n");
+            while_stmt_code.emplace_back("\tidivl\t%ebx\n");
+            while_stmt_code.emplace_back("\tpushl\t%edx\n");
         }
         else if(for_flag_expr3)
         {
-            forcode.emplace_back("\tpopl\t%ebx\n");
-            forcode.emplace_back("\tpopl\t%eax\n");
-            forcode.emplace_back("\tcltd\n");
-            forcode.emplace_back("\tidivl\t%ebx\n");
-            forcode.emplace_back("\tpushl\t%edx\n");
+            for_stmt_code.emplace_back("\tpopl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpopl\t%eax\n");
+            for_stmt_code.emplace_back("\tcltd\n");
+            for_stmt_code.emplace_back("\tidivl\t%ebx\n");
+            for_stmt_code.emplace_back("\tpushl\t%edx\n");
         }
         else
         {
@@ -1561,19 +1561,19 @@ _ID: ID
         $$=$1;
         if($$->int_val == -1)
         {
-            vector<var>::reverse_iterator it = work_layer.rbegin();
+            vector<var>::reverse_iterator curr_var = work_layer.rbegin();
             int i = 0;
-            while(it != work_layer.rend())
+            while(curr_var != work_layer.rend())
             {
-                if((*it).name == $$->varName)
+                if((*curr_var).name == $$->varName)
                 {
                     break;
                 }
-                it++;
+                curr_var++;
                 i++;
             }
             if(!declear_flag) $$->int_val = work_layer.size() - i;
-            if($$->varType == VAR_STR) $$->int_val = (*it).ro_index;
+            if($$->varType == VAR_STR) $$->int_val = (*curr_var).ro_index;
         }
     }
     ;

@@ -62,14 +62,14 @@ commentline "//"
 
 "." return dot;
 "=" return ASSIGN;
-"+=" return ADE;
-"-=" return SUE;
-"*=" return MUE;
-"/=" return DIE;
-"%=" return MOE;
+"+=" return ADD_ASS;
+"-=" return SUB_ASS;
+"*=" return MUL_ASS;
+"/=" return DIV_ASS;
+"%=" return MOD_ASS;
 
-"++" return ADO;
-"--" return SUO;
+"++" return ANSC;
+"--" return DESC;
 "+" return ADD;
 "-" return SUB;
 "*" return MUL;
@@ -79,8 +79,8 @@ commentline "//"
 "!" return NOT;
 "&&" return AND;
 "||" return OR;
-"==" return EQUAL;
-"!=" return NEQUAL;
+"==" return EQ;
+"!=" return NEQ;
 ">" return GT;
 ">=" return GE;
 "<" return LT;
@@ -125,15 +125,15 @@ commentline "//"
 {ID} {
     TreeNode *node = new TreeNode(NODE_VAR);
     node->varName = string(yytext);
-    vector<var>::reverse_iterator it = work_layer.rbegin();
-    while(it != work_layer.rend())
+    vector<var>::reverse_iterator curr_var = work_layer.rbegin();
+    while(curr_var != work_layer.rend())
     {
-        if((*it).name == node->varName)
+        if((*curr_var).name == node->varName)
         {
-            node->varType = (*it).type;
+            node->varType = (*curr_var).type;
             break;
         }
-        it++;
+        curr_var++;
     }
     yylval = node;
     return ID;
@@ -144,15 +144,15 @@ commentline "//"
     str.erase(str.begin());
     node->varName = str;
     node->varFlag = VAR_ADDRESS;
-    vector<var>::reverse_iterator it = work_layer.rbegin();
-    while(it != work_layer.rend())
+    vector<var>::reverse_iterator curr_var = work_layer.rbegin();
+    while(curr_var != work_layer.rend())
     {
-        if((*it).name == node->varName)
+        if((*curr_var).name == node->varName)
         {
-            node->varType = (*it).type;
+            node->varType = (*curr_var).type;
             break;
         }
-        it++;
+        curr_var++;
     }
     yylval = node;
     return ID;
@@ -163,15 +163,15 @@ commentline "//"
     str.erase(str.begin());
     node->varName = str;
     node->varFlag = VAR_POINTER;
-    vector<var>::reverse_iterator it = work_layer.rbegin();
-    while(it != work_layer.rend())
+    vector<var>::reverse_iterator curr_var = work_layer.rbegin();
+    while(curr_var != work_layer.rend())
     {
-        if((*it).name == node->varName)
+        if((*curr_var).name == node->varName)
         {
-            node->varType = (*it).type;
+            node->varType = (*curr_var).type;
             break;
         }
-        it++;
+        curr_var++;
     }
     yylval = node;
     return ID;
