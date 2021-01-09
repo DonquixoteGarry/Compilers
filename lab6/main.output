@@ -1,0 +1,2310 @@
+Terminals unused in grammar
+
+   MLB
+   MRB
+   dot
+
+
+State 74 conflicts: 5 shift/reduce
+
+
+Grammar
+
+    0 $accept: program $end
+
+    1 program: statements
+
+    2 statements: statement
+    3           | statements statement
+
+    4 statement: instruction
+    5          | if_else
+    6          | while
+    7          | for
+    8          | LLB statements LRB
+    9          | funcs
+   10          | printf SEMICOLON
+   11          | scanf SEMICOLON
+   12          | return_stmt
+
+   13 assign: _ID ASSIGN expr
+   14       | _ID ADD_ASS expr
+   15       | _ID SUB_ASS expr
+   16       | _ID MUL_ASS expr
+   17       | _ID DIV_ASS expr
+   18       | _ID MOD_ASS expr
+   19       | _ID ANSC
+   20       | _ID DESC
+
+   21 params: _ID
+   22       | assign
+   23       | params COMMA _ID
+   24       | params COMMA assign
+
+   25 args: expr
+   26     | addr_id
+   27     | content_id
+   28     | args COMMA expr
+   29     | args COMMA addr_id
+   30     | args COMMA content_id
+
+   31 funcs: type ID SLB args SRB statement
+   32      | type ID SLB SRB statement
+
+   33 _else: ELSE
+
+   34 if_condi: IF bool_statment
+
+   35 if_else: if_condi statement
+   36        | if_condi statement _else statement
+
+   37 _while: WHILE
+
+   38 while_condi: _while bool_statment
+
+   39 while: while_condi statement
+
+   40 for: _for for_condi statement
+
+   41 _for: FOR
+
+   42 for_condi: for_expr12 for_expr3
+
+   43 for_expr12: SLB instruction bool_expr SEMICOLON
+
+   44 for_expr3: assign SRB
+
+   45 return_stmt: RETURN expr SEMICOLON
+
+   46 bool_statment: SLB bool_expr SRB
+   47              | SLB expr SRB
+
+   48 instruction: type params SEMICOLON
+   49            | params SEMICOLON
+   50            | CONST type params SEMICOLON
+
+   51 printf: PRINTF SLB STRING COMMA args SRB
+   52       | PRINTF SLB STRING SRB
+
+   53 _SCANF: SCANF
+
+   54 scanf: _SCANF SLB STRING COMMA args SRB
+
+   55 bool_expr: TRUE
+   56          | FALSE
+   57          | expr EQ expr
+   58          | expr NEQ expr
+   59          | expr GT expr
+   60          | expr GE expr
+   61          | expr LT expr
+   62          | expr LE expr
+   63          | bool_expr AND bool_expr
+   64          | bool_expr OR bool_expr
+   65          | NOT bool_expr
+
+   66 expr: _ID
+   67     | INTEGER
+   68     | CHARACTER
+   69     | STRING
+   70     | expr ADD expr
+   71     | expr SUB expr
+   72     | expr MUL expr
+   73     | expr DIV expr
+   74     | expr MOD expr
+   75     | SUB expr
+   76     | ADD expr
+
+   77 type: INT
+   78     | VOID
+   79     | CHAR
+   80     | STR
+
+   81 _ID: ID
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+ID (258) 31 32 81
+addr_id (259) 26 29
+content_id (260) 27 30
+INTEGER (261) 67
+CHARACTER (262) 68
+STRING (263) 51 52 54 69
+IF (264) 34
+ELSE (265) 33
+WHILE (266) 37
+FOR (267) 41
+RETURN (268) 45
+CONST (269) 50
+INT (270) 77
+VOID (271) 78
+CHAR (272) 79
+STR (273) 80
+SLB (274) 31 32 43 46 47 51 52 54
+SRB (275) 31 32 44 46 47 51 52 54
+MLB (276)
+MRB (277)
+LLB (278) 8
+LRB (279) 8
+COMMA (280) 23 24 28 29 30 51 54
+SEMICOLON (281) 10 11 43 45 48 49 50
+TRUE (282) 55
+FALSE (283) 56
+ADD (284) 70 76
+SUB (285) 71 75
+MUL (286) 72
+DIV (287) 73
+MOD (288) 74
+ANSC (289) 19
+DESC (290) 20
+NEG (291)
+POS (292)
+ASSIGN (293) 13
+ADD_ASS (294) 14
+SUB_ASS (295) 15
+MUL_ASS (296) 16
+DIV_ASS (297) 17
+MOD_ASS (298) 18
+EQ (299) 57
+NEQ (300) 58
+GT (301) 59
+GE (302) 60
+LT (303) 61
+LE (304) 62
+NOT (305) 65
+AND (306) 63
+OR (307) 64
+PRINTF (308) 51 52
+SCANF (309) 53
+dot (310)
+LOWER_THEN_ELSE (311)
+
+
+Nonterminals, with rules where they appear
+
+$accept (57)
+    on left: 0
+program (58)
+    on left: 1, on right: 0
+statements (59)
+    on left: 2 3, on right: 1 3 8
+statement (60)
+    on left: 4 5 6 7 8 9 10 11 12, on right: 2 3 31 32 35 36 39 40
+assign (61)
+    on left: 13 14 15 16 17 18 19 20, on right: 22 24 44
+params (62)
+    on left: 21 22 23 24, on right: 23 24 48 49 50
+args (63)
+    on left: 25 26 27 28 29 30, on right: 28 29 30 31 51 54
+funcs (64)
+    on left: 31 32, on right: 9
+_else (65)
+    on left: 33, on right: 36
+if_condi (66)
+    on left: 34, on right: 35 36
+if_else (67)
+    on left: 35 36, on right: 5
+_while (68)
+    on left: 37, on right: 38
+while_condi (69)
+    on left: 38, on right: 39
+while (70)
+    on left: 39, on right: 6
+for (71)
+    on left: 40, on right: 7
+_for (72)
+    on left: 41, on right: 40
+for_condi (73)
+    on left: 42, on right: 40
+for_expr12 (74)
+    on left: 43, on right: 42
+for_expr3 (75)
+    on left: 44, on right: 42
+return_stmt (76)
+    on left: 45, on right: 12
+bool_statment (77)
+    on left: 46 47, on right: 34 38
+instruction (78)
+    on left: 48 49 50, on right: 4 43
+printf (79)
+    on left: 51 52, on right: 10
+_SCANF (80)
+    on left: 53, on right: 54
+scanf (81)
+    on left: 54, on right: 11
+bool_expr (82)
+    on left: 55 56 57 58 59 60 61 62 63 64 65, on right: 43 46 63 64
+    65
+expr (83)
+    on left: 66 67 68 69 70 71 72 73 74 75 76, on right: 13 14 15 16
+    17 18 25 28 45 47 57 58 59 60 61 62 70 71 72 73 74 75 76
+type (84)
+    on left: 77 78 79 80, on right: 31 32 48 50
+_ID (85)
+    on left: 81, on right: 13 14 15 16 17 18 19 20 21 23 66
+
+
+State 0
+
+    0 $accept: . program $end
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    program      go to state 14
+    statements   go to state 15
+    statement    go to state 16
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 1
+
+   81 _ID: ID .
+
+    $default  reduce using rule 81 (_ID)
+
+
+State 2
+
+   34 if_condi: IF . bool_statment
+
+    SLB  shift, and go to state 34
+
+    bool_statment  go to state 35
+
+
+State 3
+
+   37 _while: WHILE .
+
+    $default  reduce using rule 37 (_while)
+
+
+State 4
+
+   41 _for: FOR .
+
+    $default  reduce using rule 41 (_for)
+
+
+State 5
+
+   45 return_stmt: RETURN . expr SEMICOLON
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 41
+    _ID   go to state 42
+
+
+State 6
+
+   50 instruction: CONST . type params SEMICOLON
+
+    INT   shift, and go to state 7
+    VOID  shift, and go to state 8
+    CHAR  shift, and go to state 9
+    STR   shift, and go to state 10
+
+    type  go to state 43
+
+
+State 7
+
+   77 type: INT .
+
+    $default  reduce using rule 77 (type)
+
+
+State 8
+
+   78 type: VOID .
+
+    $default  reduce using rule 78 (type)
+
+
+State 9
+
+   79 type: CHAR .
+
+    $default  reduce using rule 79 (type)
+
+
+State 10
+
+   80 type: STR .
+
+    $default  reduce using rule 80 (type)
+
+
+State 11
+
+    8 statement: LLB . statements LRB
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statements   go to state 44
+    statement    go to state 16
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 12
+
+   51 printf: PRINTF . SLB STRING COMMA args SRB
+   52       | PRINTF . SLB STRING SRB
+
+    SLB  shift, and go to state 45
+
+
+State 13
+
+   53 _SCANF: SCANF .
+
+    $default  reduce using rule 53 (_SCANF)
+
+
+State 14
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 46
+
+
+State 15
+
+    1 program: statements .
+    3 statements: statements . statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    $default  reduce using rule 1 (program)
+
+    statement    go to state 47
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 16
+
+    2 statements: statement .
+
+    $default  reduce using rule 2 (statements)
+
+
+State 17
+
+   22 params: assign .
+
+    $default  reduce using rule 22 (params)
+
+
+State 18
+
+   23 params: params . COMMA _ID
+   24       | params . COMMA assign
+   49 instruction: params . SEMICOLON
+
+    COMMA      shift, and go to state 48
+    SEMICOLON  shift, and go to state 49
+
+
+State 19
+
+    9 statement: funcs .
+
+    $default  reduce using rule 9 (statement)
+
+
+State 20
+
+   35 if_else: if_condi . statement
+   36        | if_condi . statement _else statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 50
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 21
+
+    5 statement: if_else .
+
+    $default  reduce using rule 5 (statement)
+
+
+State 22
+
+   38 while_condi: _while . bool_statment
+
+    SLB  shift, and go to state 34
+
+    bool_statment  go to state 51
+
+
+State 23
+
+   39 while: while_condi . statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 52
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 24
+
+    6 statement: while .
+
+    $default  reduce using rule 6 (statement)
+
+
+State 25
+
+    7 statement: for .
+
+    $default  reduce using rule 7 (statement)
+
+
+State 26
+
+   40 for: _for . for_condi statement
+
+    SLB  shift, and go to state 53
+
+    for_condi   go to state 54
+    for_expr12  go to state 55
+
+
+State 27
+
+   12 statement: return_stmt .
+
+    $default  reduce using rule 12 (statement)
+
+
+State 28
+
+    4 statement: instruction .
+
+    $default  reduce using rule 4 (statement)
+
+
+State 29
+
+   10 statement: printf . SEMICOLON
+
+    SEMICOLON  shift, and go to state 56
+
+
+State 30
+
+   54 scanf: _SCANF . SLB STRING COMMA args SRB
+
+    SLB  shift, and go to state 57
+
+
+State 31
+
+   11 statement: scanf . SEMICOLON
+
+    SEMICOLON  shift, and go to state 58
+
+
+State 32
+
+   31 funcs: type . ID SLB args SRB statement
+   32      | type . ID SLB SRB statement
+   48 instruction: type . params SEMICOLON
+
+    ID  shift, and go to state 59
+
+    assign  go to state 17
+    params  go to state 60
+    _ID     go to state 33
+
+
+State 33
+
+   13 assign: _ID . ASSIGN expr
+   14       | _ID . ADD_ASS expr
+   15       | _ID . SUB_ASS expr
+   16       | _ID . MUL_ASS expr
+   17       | _ID . DIV_ASS expr
+   18       | _ID . MOD_ASS expr
+   19       | _ID . ANSC
+   20       | _ID . DESC
+   21 params: _ID .
+
+    ANSC     shift, and go to state 61
+    DESC     shift, and go to state 62
+    ASSIGN   shift, and go to state 63
+    ADD_ASS  shift, and go to state 64
+    SUB_ASS  shift, and go to state 65
+    MUL_ASS  shift, and go to state 66
+    DIV_ASS  shift, and go to state 67
+    MOD_ASS  shift, and go to state 68
+
+    $default  reduce using rule 21 (params)
+
+
+State 34
+
+   46 bool_statment: SLB . bool_expr SRB
+   47              | SLB . expr SRB
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    TRUE       shift, and go to state 69
+    FALSE      shift, and go to state 70
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+    NOT        shift, and go to state 71
+
+    bool_expr  go to state 72
+    expr       go to state 73
+    _ID        go to state 42
+
+
+State 35
+
+   34 if_condi: IF bool_statment .
+
+    $default  reduce using rule 34 (if_condi)
+
+
+State 36
+
+   67 expr: INTEGER .
+
+    $default  reduce using rule 67 (expr)
+
+
+State 37
+
+   68 expr: CHARACTER .
+
+    $default  reduce using rule 68 (expr)
+
+
+State 38
+
+   69 expr: STRING .
+
+    $default  reduce using rule 69 (expr)
+
+
+State 39
+
+   76 expr: ADD . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 74
+    _ID   go to state 42
+
+
+State 40
+
+   75 expr: SUB . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 75
+    _ID   go to state 42
+
+
+State 41
+
+   45 return_stmt: RETURN expr . SEMICOLON
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    SEMICOLON  shift, and go to state 76
+    ADD        shift, and go to state 77
+    SUB        shift, and go to state 78
+    MUL        shift, and go to state 79
+    DIV        shift, and go to state 80
+    MOD        shift, and go to state 81
+
+
+State 42
+
+   66 expr: _ID .
+
+    $default  reduce using rule 66 (expr)
+
+
+State 43
+
+   50 instruction: CONST type . params SEMICOLON
+
+    ID  shift, and go to state 1
+
+    assign  go to state 17
+    params  go to state 82
+    _ID     go to state 33
+
+
+State 44
+
+    3 statements: statements . statement
+    8 statement: LLB statements . LRB
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    LRB     shift, and go to state 83
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 47
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 45
+
+   51 printf: PRINTF SLB . STRING COMMA args SRB
+   52       | PRINTF SLB . STRING SRB
+
+    STRING  shift, and go to state 84
+
+
+State 46
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+State 47
+
+    3 statements: statements statement .
+
+    $default  reduce using rule 3 (statements)
+
+
+State 48
+
+   23 params: params COMMA . _ID
+   24       | params COMMA . assign
+
+    ID  shift, and go to state 1
+
+    assign  go to state 85
+    _ID     go to state 86
+
+
+State 49
+
+   49 instruction: params SEMICOLON .
+
+    $default  reduce using rule 49 (instruction)
+
+
+State 50
+
+   35 if_else: if_condi statement .
+   36        | if_condi statement . _else statement
+
+    ELSE  shift, and go to state 87
+
+    $default  reduce using rule 35 (if_else)
+
+    _else  go to state 88
+
+
+State 51
+
+   38 while_condi: _while bool_statment .
+
+    $default  reduce using rule 38 (while_condi)
+
+
+State 52
+
+   39 while: while_condi statement .
+
+    $default  reduce using rule 39 (while)
+
+
+State 53
+
+   43 for_expr12: SLB . instruction bool_expr SEMICOLON
+
+    ID     shift, and go to state 1
+    CONST  shift, and go to state 6
+    INT    shift, and go to state 7
+    VOID   shift, and go to state 8
+    CHAR   shift, and go to state 9
+    STR    shift, and go to state 10
+
+    assign       go to state 17
+    params       go to state 18
+    instruction  go to state 89
+    type         go to state 90
+    _ID          go to state 33
+
+
+State 54
+
+   40 for: _for for_condi . statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 91
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 55
+
+   42 for_condi: for_expr12 . for_expr3
+
+    ID  shift, and go to state 1
+
+    assign     go to state 92
+    for_expr3  go to state 93
+    _ID        go to state 94
+
+
+State 56
+
+   10 statement: printf SEMICOLON .
+
+    $default  reduce using rule 10 (statement)
+
+
+State 57
+
+   54 scanf: _SCANF SLB . STRING COMMA args SRB
+
+    STRING  shift, and go to state 95
+
+
+State 58
+
+   11 statement: scanf SEMICOLON .
+
+    $default  reduce using rule 11 (statement)
+
+
+State 59
+
+   31 funcs: type ID . SLB args SRB statement
+   32      | type ID . SLB SRB statement
+   81 _ID: ID .
+
+    SLB  shift, and go to state 96
+
+    $default  reduce using rule 81 (_ID)
+
+
+State 60
+
+   23 params: params . COMMA _ID
+   24       | params . COMMA assign
+   48 instruction: type params . SEMICOLON
+
+    COMMA      shift, and go to state 48
+    SEMICOLON  shift, and go to state 97
+
+
+State 61
+
+   19 assign: _ID ANSC .
+
+    $default  reduce using rule 19 (assign)
+
+
+State 62
+
+   20 assign: _ID DESC .
+
+    $default  reduce using rule 20 (assign)
+
+
+State 63
+
+   13 assign: _ID ASSIGN . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 98
+    _ID   go to state 42
+
+
+State 64
+
+   14 assign: _ID ADD_ASS . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 99
+    _ID   go to state 42
+
+
+State 65
+
+   15 assign: _ID SUB_ASS . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 100
+    _ID   go to state 42
+
+
+State 66
+
+   16 assign: _ID MUL_ASS . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 101
+    _ID   go to state 42
+
+
+State 67
+
+   17 assign: _ID DIV_ASS . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 102
+    _ID   go to state 42
+
+
+State 68
+
+   18 assign: _ID MOD_ASS . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 103
+    _ID   go to state 42
+
+
+State 69
+
+   55 bool_expr: TRUE .
+
+    $default  reduce using rule 55 (bool_expr)
+
+
+State 70
+
+   56 bool_expr: FALSE .
+
+    $default  reduce using rule 56 (bool_expr)
+
+
+State 71
+
+   65 bool_expr: NOT . bool_expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    TRUE       shift, and go to state 69
+    FALSE      shift, and go to state 70
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+    NOT        shift, and go to state 71
+
+    bool_expr  go to state 104
+    expr       go to state 105
+    _ID        go to state 42
+
+
+State 72
+
+   46 bool_statment: SLB bool_expr . SRB
+   63 bool_expr: bool_expr . AND bool_expr
+   64          | bool_expr . OR bool_expr
+
+    SRB  shift, and go to state 106
+    AND  shift, and go to state 107
+    OR   shift, and go to state 108
+
+
+State 73
+
+   47 bool_statment: SLB expr . SRB
+   57 bool_expr: expr . EQ expr
+   58          | expr . NEQ expr
+   59          | expr . GT expr
+   60          | expr . GE expr
+   61          | expr . LT expr
+   62          | expr . LE expr
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    SRB  shift, and go to state 109
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+    EQ   shift, and go to state 110
+    NEQ  shift, and go to state 111
+    GT   shift, and go to state 112
+    GE   shift, and go to state 113
+    LT   shift, and go to state 114
+    LE   shift, and go to state 115
+
+
+State 74
+
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+   76     | ADD expr .
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    ADD       [reduce using rule 76 (expr)]
+    SUB       [reduce using rule 76 (expr)]
+    MUL       [reduce using rule 76 (expr)]
+    DIV       [reduce using rule 76 (expr)]
+    MOD       [reduce using rule 76 (expr)]
+    $default  reduce using rule 76 (expr)
+
+
+State 75
+
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+   75     | SUB expr .
+
+    $default  reduce using rule 75 (expr)
+
+
+State 76
+
+   45 return_stmt: RETURN expr SEMICOLON .
+
+    $default  reduce using rule 45 (return_stmt)
+
+
+State 77
+
+   70 expr: expr ADD . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 116
+    _ID   go to state 42
+
+
+State 78
+
+   71 expr: expr SUB . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 117
+    _ID   go to state 42
+
+
+State 79
+
+   72 expr: expr MUL . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 118
+    _ID   go to state 42
+
+
+State 80
+
+   73 expr: expr DIV . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 119
+    _ID   go to state 42
+
+
+State 81
+
+   74 expr: expr MOD . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 120
+    _ID   go to state 42
+
+
+State 82
+
+   23 params: params . COMMA _ID
+   24       | params . COMMA assign
+   50 instruction: CONST type params . SEMICOLON
+
+    COMMA      shift, and go to state 48
+    SEMICOLON  shift, and go to state 121
+
+
+State 83
+
+    8 statement: LLB statements LRB .
+
+    $default  reduce using rule 8 (statement)
+
+
+State 84
+
+   51 printf: PRINTF SLB STRING . COMMA args SRB
+   52       | PRINTF SLB STRING . SRB
+
+    SRB    shift, and go to state 122
+    COMMA  shift, and go to state 123
+
+
+State 85
+
+   24 params: params COMMA assign .
+
+    $default  reduce using rule 24 (params)
+
+
+State 86
+
+   13 assign: _ID . ASSIGN expr
+   14       | _ID . ADD_ASS expr
+   15       | _ID . SUB_ASS expr
+   16       | _ID . MUL_ASS expr
+   17       | _ID . DIV_ASS expr
+   18       | _ID . MOD_ASS expr
+   19       | _ID . ANSC
+   20       | _ID . DESC
+   23 params: params COMMA _ID .
+
+    ANSC     shift, and go to state 61
+    DESC     shift, and go to state 62
+    ASSIGN   shift, and go to state 63
+    ADD_ASS  shift, and go to state 64
+    SUB_ASS  shift, and go to state 65
+    MUL_ASS  shift, and go to state 66
+    DIV_ASS  shift, and go to state 67
+    MOD_ASS  shift, and go to state 68
+
+    $default  reduce using rule 23 (params)
+
+
+State 87
+
+   33 _else: ELSE .
+
+    $default  reduce using rule 33 (_else)
+
+
+State 88
+
+   36 if_else: if_condi statement _else . statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 124
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 89
+
+   43 for_expr12: SLB instruction . bool_expr SEMICOLON
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    TRUE       shift, and go to state 69
+    FALSE      shift, and go to state 70
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+    NOT        shift, and go to state 71
+
+    bool_expr  go to state 125
+    expr       go to state 105
+    _ID        go to state 42
+
+
+State 90
+
+   48 instruction: type . params SEMICOLON
+
+    ID  shift, and go to state 1
+
+    assign  go to state 17
+    params  go to state 60
+    _ID     go to state 33
+
+
+State 91
+
+   40 for: _for for_condi statement .
+
+    $default  reduce using rule 40 (for)
+
+
+State 92
+
+   44 for_expr3: assign . SRB
+
+    SRB  shift, and go to state 126
+
+
+State 93
+
+   42 for_condi: for_expr12 for_expr3 .
+
+    $default  reduce using rule 42 (for_condi)
+
+
+State 94
+
+   13 assign: _ID . ASSIGN expr
+   14       | _ID . ADD_ASS expr
+   15       | _ID . SUB_ASS expr
+   16       | _ID . MUL_ASS expr
+   17       | _ID . DIV_ASS expr
+   18       | _ID . MOD_ASS expr
+   19       | _ID . ANSC
+   20       | _ID . DESC
+
+    ANSC     shift, and go to state 61
+    DESC     shift, and go to state 62
+    ASSIGN   shift, and go to state 63
+    ADD_ASS  shift, and go to state 64
+    SUB_ASS  shift, and go to state 65
+    MUL_ASS  shift, and go to state 66
+    DIV_ASS  shift, and go to state 67
+    MOD_ASS  shift, and go to state 68
+
+
+State 95
+
+   54 scanf: _SCANF SLB STRING . COMMA args SRB
+
+    COMMA  shift, and go to state 127
+
+
+State 96
+
+   31 funcs: type ID SLB . args SRB statement
+   32      | type ID SLB . SRB statement
+
+    ID          shift, and go to state 1
+    addr_id     shift, and go to state 128
+    content_id  shift, and go to state 129
+    INTEGER     shift, and go to state 36
+    CHARACTER   shift, and go to state 37
+    STRING      shift, and go to state 38
+    SRB         shift, and go to state 130
+    ADD         shift, and go to state 39
+    SUB         shift, and go to state 40
+
+    args  go to state 131
+    expr  go to state 132
+    _ID   go to state 42
+
+
+State 97
+
+   48 instruction: type params SEMICOLON .
+
+    $default  reduce using rule 48 (instruction)
+
+
+State 98
+
+   13 assign: _ID ASSIGN expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 13 (assign)
+
+
+State 99
+
+   14 assign: _ID ADD_ASS expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 14 (assign)
+
+
+State 100
+
+   15 assign: _ID SUB_ASS expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 15 (assign)
+
+
+State 101
+
+   16 assign: _ID MUL_ASS expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 16 (assign)
+
+
+State 102
+
+   17 assign: _ID DIV_ASS expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 17 (assign)
+
+
+State 103
+
+   18 assign: _ID MOD_ASS expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 18 (assign)
+
+
+State 104
+
+   63 bool_expr: bool_expr . AND bool_expr
+   64          | bool_expr . OR bool_expr
+   65          | NOT bool_expr .
+
+    $default  reduce using rule 65 (bool_expr)
+
+
+State 105
+
+   57 bool_expr: expr . EQ expr
+   58          | expr . NEQ expr
+   59          | expr . GT expr
+   60          | expr . GE expr
+   61          | expr . LT expr
+   62          | expr . LE expr
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+    EQ   shift, and go to state 110
+    NEQ  shift, and go to state 111
+    GT   shift, and go to state 112
+    GE   shift, and go to state 113
+    LT   shift, and go to state 114
+    LE   shift, and go to state 115
+
+
+State 106
+
+   46 bool_statment: SLB bool_expr SRB .
+
+    $default  reduce using rule 46 (bool_statment)
+
+
+State 107
+
+   63 bool_expr: bool_expr AND . bool_expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    TRUE       shift, and go to state 69
+    FALSE      shift, and go to state 70
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+    NOT        shift, and go to state 71
+
+    bool_expr  go to state 133
+    expr       go to state 105
+    _ID        go to state 42
+
+
+State 108
+
+   64 bool_expr: bool_expr OR . bool_expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    TRUE       shift, and go to state 69
+    FALSE      shift, and go to state 70
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+    NOT        shift, and go to state 71
+
+    bool_expr  go to state 134
+    expr       go to state 105
+    _ID        go to state 42
+
+
+State 109
+
+   47 bool_statment: SLB expr SRB .
+
+    $default  reduce using rule 47 (bool_statment)
+
+
+State 110
+
+   57 bool_expr: expr EQ . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 135
+    _ID   go to state 42
+
+
+State 111
+
+   58 bool_expr: expr NEQ . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 136
+    _ID   go to state 42
+
+
+State 112
+
+   59 bool_expr: expr GT . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 137
+    _ID   go to state 42
+
+
+State 113
+
+   60 bool_expr: expr GE . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 138
+    _ID   go to state 42
+
+
+State 114
+
+   61 bool_expr: expr LT . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 139
+    _ID   go to state 42
+
+
+State 115
+
+   62 bool_expr: expr LE . expr
+
+    ID         shift, and go to state 1
+    INTEGER    shift, and go to state 36
+    CHARACTER  shift, and go to state 37
+    STRING     shift, and go to state 38
+    ADD        shift, and go to state 39
+    SUB        shift, and go to state 40
+
+    expr  go to state 140
+    _ID   go to state 42
+
+
+State 116
+
+   70 expr: expr . ADD expr
+   70     | expr ADD expr .
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 70 (expr)
+
+
+State 117
+
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   71     | expr SUB expr .
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 71 (expr)
+
+
+State 118
+
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   72     | expr MUL expr .
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    $default  reduce using rule 72 (expr)
+
+
+State 119
+
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   73     | expr DIV expr .
+   74     | expr . MOD expr
+
+    $default  reduce using rule 73 (expr)
+
+
+State 120
+
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+   74     | expr MOD expr .
+
+    $default  reduce using rule 74 (expr)
+
+
+State 121
+
+   50 instruction: CONST type params SEMICOLON .
+
+    $default  reduce using rule 50 (instruction)
+
+
+State 122
+
+   52 printf: PRINTF SLB STRING SRB .
+
+    $default  reduce using rule 52 (printf)
+
+
+State 123
+
+   51 printf: PRINTF SLB STRING COMMA . args SRB
+
+    ID          shift, and go to state 1
+    addr_id     shift, and go to state 128
+    content_id  shift, and go to state 129
+    INTEGER     shift, and go to state 36
+    CHARACTER   shift, and go to state 37
+    STRING      shift, and go to state 38
+    ADD         shift, and go to state 39
+    SUB         shift, and go to state 40
+
+    args  go to state 141
+    expr  go to state 132
+    _ID   go to state 42
+
+
+State 124
+
+   36 if_else: if_condi statement _else statement .
+
+    $default  reduce using rule 36 (if_else)
+
+
+State 125
+
+   43 for_expr12: SLB instruction bool_expr . SEMICOLON
+   63 bool_expr: bool_expr . AND bool_expr
+   64          | bool_expr . OR bool_expr
+
+    SEMICOLON  shift, and go to state 142
+    AND        shift, and go to state 107
+    OR         shift, and go to state 108
+
+
+State 126
+
+   44 for_expr3: assign SRB .
+
+    $default  reduce using rule 44 (for_expr3)
+
+
+State 127
+
+   54 scanf: _SCANF SLB STRING COMMA . args SRB
+
+    ID          shift, and go to state 1
+    addr_id     shift, and go to state 128
+    content_id  shift, and go to state 129
+    INTEGER     shift, and go to state 36
+    CHARACTER   shift, and go to state 37
+    STRING      shift, and go to state 38
+    ADD         shift, and go to state 39
+    SUB         shift, and go to state 40
+
+    args  go to state 143
+    expr  go to state 132
+    _ID   go to state 42
+
+
+State 128
+
+   26 args: addr_id .
+
+    $default  reduce using rule 26 (args)
+
+
+State 129
+
+   27 args: content_id .
+
+    $default  reduce using rule 27 (args)
+
+
+State 130
+
+   32 funcs: type ID SLB SRB . statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 144
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 131
+
+   28 args: args . COMMA expr
+   29     | args . COMMA addr_id
+   30     | args . COMMA content_id
+   31 funcs: type ID SLB args . SRB statement
+
+    SRB    shift, and go to state 145
+    COMMA  shift, and go to state 146
+
+
+State 132
+
+   25 args: expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 25 (args)
+
+
+State 133
+
+   63 bool_expr: bool_expr . AND bool_expr
+   63          | bool_expr AND bool_expr .
+   64          | bool_expr . OR bool_expr
+
+    AND  shift, and go to state 107
+
+    $default  reduce using rule 63 (bool_expr)
+
+
+State 134
+
+   63 bool_expr: bool_expr . AND bool_expr
+   64          | bool_expr . OR bool_expr
+   64          | bool_expr OR bool_expr .
+
+    AND  shift, and go to state 107
+    OR   shift, and go to state 108
+
+    $default  reduce using rule 64 (bool_expr)
+
+
+State 135
+
+   57 bool_expr: expr EQ expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 57 (bool_expr)
+
+
+State 136
+
+   58 bool_expr: expr NEQ expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 58 (bool_expr)
+
+
+State 137
+
+   59 bool_expr: expr GT expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 59 (bool_expr)
+
+
+State 138
+
+   60 bool_expr: expr GE expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 60 (bool_expr)
+
+
+State 139
+
+   61 bool_expr: expr LT expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 61 (bool_expr)
+
+
+State 140
+
+   62 bool_expr: expr LE expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 62 (bool_expr)
+
+
+State 141
+
+   28 args: args . COMMA expr
+   29     | args . COMMA addr_id
+   30     | args . COMMA content_id
+   51 printf: PRINTF SLB STRING COMMA args . SRB
+
+    SRB    shift, and go to state 147
+    COMMA  shift, and go to state 146
+
+
+State 142
+
+   43 for_expr12: SLB instruction bool_expr SEMICOLON .
+
+    $default  reduce using rule 43 (for_expr12)
+
+
+State 143
+
+   28 args: args . COMMA expr
+   29     | args . COMMA addr_id
+   30     | args . COMMA content_id
+   54 scanf: _SCANF SLB STRING COMMA args . SRB
+
+    SRB    shift, and go to state 148
+    COMMA  shift, and go to state 146
+
+
+State 144
+
+   32 funcs: type ID SLB SRB statement .
+
+    $default  reduce using rule 32 (funcs)
+
+
+State 145
+
+   31 funcs: type ID SLB args SRB . statement
+
+    ID      shift, and go to state 1
+    IF      shift, and go to state 2
+    WHILE   shift, and go to state 3
+    FOR     shift, and go to state 4
+    RETURN  shift, and go to state 5
+    CONST   shift, and go to state 6
+    INT     shift, and go to state 7
+    VOID    shift, and go to state 8
+    CHAR    shift, and go to state 9
+    STR     shift, and go to state 10
+    LLB     shift, and go to state 11
+    PRINTF  shift, and go to state 12
+    SCANF   shift, and go to state 13
+
+    statement    go to state 149
+    assign       go to state 17
+    params       go to state 18
+    funcs        go to state 19
+    if_condi     go to state 20
+    if_else      go to state 21
+    _while       go to state 22
+    while_condi  go to state 23
+    while        go to state 24
+    for          go to state 25
+    _for         go to state 26
+    return_stmt  go to state 27
+    instruction  go to state 28
+    printf       go to state 29
+    _SCANF       go to state 30
+    scanf        go to state 31
+    type         go to state 32
+    _ID          go to state 33
+
+
+State 146
+
+   28 args: args COMMA . expr
+   29     | args COMMA . addr_id
+   30     | args COMMA . content_id
+
+    ID          shift, and go to state 1
+    addr_id     shift, and go to state 150
+    content_id  shift, and go to state 151
+    INTEGER     shift, and go to state 36
+    CHARACTER   shift, and go to state 37
+    STRING      shift, and go to state 38
+    ADD         shift, and go to state 39
+    SUB         shift, and go to state 40
+
+    expr  go to state 152
+    _ID   go to state 42
+
+
+State 147
+
+   51 printf: PRINTF SLB STRING COMMA args SRB .
+
+    $default  reduce using rule 51 (printf)
+
+
+State 148
+
+   54 scanf: _SCANF SLB STRING COMMA args SRB .
+
+    $default  reduce using rule 54 (scanf)
+
+
+State 149
+
+   31 funcs: type ID SLB args SRB statement .
+
+    $default  reduce using rule 31 (funcs)
+
+
+State 150
+
+   29 args: args COMMA addr_id .
+
+    $default  reduce using rule 29 (args)
+
+
+State 151
+
+   30 args: args COMMA content_id .
+
+    $default  reduce using rule 30 (args)
+
+
+State 152
+
+   28 args: args COMMA expr .
+   70 expr: expr . ADD expr
+   71     | expr . SUB expr
+   72     | expr . MUL expr
+   73     | expr . DIV expr
+   74     | expr . MOD expr
+
+    ADD  shift, and go to state 77
+    SUB  shift, and go to state 78
+    MUL  shift, and go to state 79
+    DIV  shift, and go to state 80
+    MOD  shift, and go to state 81
+
+    $default  reduce using rule 28 (args)
