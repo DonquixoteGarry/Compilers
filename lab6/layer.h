@@ -3,7 +3,7 @@
 #include<vector>
 using namespace std;
 class var
-{
+{//变量
 public:
     int type;
     string name;
@@ -31,7 +31,7 @@ public:
     }
 };
 class temp_var
-{
+{//临时变量
 public:
     var v;
     int l;

@@ -14,7 +14,3 @@ test:
 	./main.out <test/test.c >test/test.s
 	gcc test/test.s -m32 -o test/test.out
 	qemu-i386 test/test.out
-s:
-	./main.out <test/test.c >test/test.s
-	gcc test/test.s -m32 -o test/test.out
-	qemu-i386 test/test.out
